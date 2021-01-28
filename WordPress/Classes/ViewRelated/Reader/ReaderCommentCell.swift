@@ -31,7 +31,8 @@ class ReaderCommentCell: UITableViewCell {
     @IBOutlet var actionBar: UIStackView!
     @IBOutlet var leadingContentConstraint: NSLayoutConstraint?
 
-    private let textView: WPRichContentView = {
+    var textView: WPRichContentView!
+    private let createTextView: WPRichContentView = {
         let newTextView = WPRichContentView(frame: .zero, textContainer: nil)
         newTextView.isScrollEnabled = false
         newTextView.isEditable = false
@@ -81,7 +82,8 @@ class ReaderCommentCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        setupContentView()
+        textView = createTextView
+
         applyStyles()
     }
 
@@ -105,8 +107,6 @@ class ReaderCommentCell: UITableViewCell {
         WPStyleGuide.applyReaderActionButtonStyle(likeButton)
 
         authorButton.titleLabel?.lineBreakMode = .byTruncatingTail
-
-        textView.textContainerInset = Constants.textViewInsets
 
         let backgroundView = UIView()
         backgroundView.backgroundColor = .listForegroundUnread
@@ -202,6 +202,13 @@ class ReaderCommentCell: UITableViewCell {
 
 
     @objc func configureText() {
+        if textView != nil {
+            textView.removeFromSuperview()
+        }
+        textView = createTextView
+        setupContentView()
+        textView.textContainerInset = Constants.textViewInsets
+        textView.delegate = delegate
         textView.mediaHost = mediaHost()
 
         guard let attributedString = attributedString else {
@@ -210,6 +217,7 @@ class ReaderCommentCell: UITableViewCell {
 
         // Use `content` vs `contentForDisplay`. Hierarchcial comments are already
         // correctly formatted during the sync process.
+        print("$$ \(attributedString)")
         textView.attributedText = attributedString
     }
 
