@@ -4,42 +4,71 @@ import WordPressKit
 /// Service providing access to user roles
 ///
 struct RoleService {
-    let blog: Blog
 
-    fileprivate let context: NSManagedObjectContext
+    fileprivate let coreDataStack: CoreDataStack
     fileprivate let remote: PeopleServiceRemote
     fileprivate let siteID: Int
 
-    init?(blog: Blog, context: NSManagedObjectContext) {
-        guard let api = blog.wordPressComRestApi(), let dotComID = blog.dotComID as? Int else {
-            return nil
-        }
-
+    /// Designated Initializer.
+    ///
+    /// - Parameters:
+    ///     - siteID: The siteID this service will operate on
+    ///     - coreDataStack: CoreDataStack to be used.
+    ///     - api: A WordPress.com Rest API Instance
+    ///
+    init(siteID: Int, coreDataStack: CoreDataStack, api: WordPressComRestApi) {
         self.remote = PeopleServiceRemote(wordPressComRestApi: api)
-        self.siteID = dotComID
-        self.blog = blog
-        self.context = context
+        self.siteID = siteID
+        self.coreDataStack = coreDataStack
     }
 
-    /// Returns a role from Core Data with the given slug.
+    /// Returns an immutable role from Core Data with the given slug.
     ///
-    func getRole(slug: String) -> Role? {
-        let predicate = NSPredicate(format: "slug = %@ AND blog = %@", slug, blog)
-        return context.firstObject(ofType: Role.self, matching: predicate)
+    @inlinable
+    func getRole(slug: String) -> RemoteRole? {
+        getManagedRole(slug: slug)?.toUnmanaged()
+    }
+
+    /// Returns a Role (an NSManagedObject subclass) assocaited with the given `slug`
+    ///
+    /// Parameters:
+    /// - slug: The role slug (ex: `administrator`)
+    func getManagedRole(slug: String) -> Role? {
+        precondition(Thread.isMainThread, "`RoleService.getManagedRole` must be called from the main thread")
+        return Role.find(withSlug: slug, andSiteId: siteID, in: coreDataStack.mainContext)
+    }
+
+    /// Fetches all local roles for the given blog
+    ///
+    func getRoles(forSiteWithID siteID: Int) -> [RemoteRole] {
+        precondition(Thread.isMainThread, "`RoleService.getRolesForSiteWithID` must be called from the main thread")
+        let predicate = NSPredicate(format: "blog.blogID = %d", siteID)
+        let sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
+        return coreDataStack.mainContext.allObjects(ofType: Role.self, matching: predicate, sortedBy: sortDescriptors).map { $0.toUnmanaged() }
     }
 
     /// Forces a refresh of roles from the api and stores them in Core Data.
     ///
-    func fetchRoles(success: @escaping ([Role]) -> Void, failure: @escaping (Error) -> Void) {
+    func fetchRoles(onCompletion: @escaping (Result<Void, Error>) -> Void) {
         remote.getUserRoles(siteID, success: { (remoteRoles) in
-            let roles = self.mergeRoles(remoteRoles)
-            success(roles)
-        }, failure: failure)
+            coreDataStack.performBackgroundOperationAndSave { context in
+                mergeRoles(forBlogWithId: self.siteID, remoteRoles, in: context)
+            } onCompletion: {
+                onCompletion(.success(()))
+            }
+        }, failure: { error in
+            onCompletion(.failure(error))
+        })
     }
 }
 
 private extension RoleService {
-    func mergeRoles(_ remoteRoles: [RemoteRole]) -> [Role] {
+    func mergeRoles(forBlogWithId siteID: Int, _ remoteRoles: [RemoteRole], in context: NSManagedObjectContext) {
+
+        guard let blog = try? Blog.find(withID: siteID, in: context) else {
+            return
+        }
+
         let existingRoles = blog.roles ?? []
         var rolesToKeep = [Role]()
         for (order, remoteRole) in remoteRoles.enumerated() {
@@ -55,9 +84,8 @@ private extension RoleService {
             role.order = order as NSNumber
             rolesToKeep.append(role)
         }
+
         let rolesToDelete = existingRoles.subtracting(rolesToKeep)
-        rolesToDelete.forEach(context.delete(_:))
-        ContextManager.sharedInstance().save(context)
-        return rolesToKeep
+        rolesToDelete.forEach(context.delete)
     }
 }

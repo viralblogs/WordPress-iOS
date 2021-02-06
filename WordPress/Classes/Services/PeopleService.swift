@@ -11,24 +11,20 @@ struct PeopleService {
 
     // MARK: - Private Properties
     ///
-    fileprivate let context: NSManagedObjectContext
+    fileprivate let coreDataStack: CoreDataStack
     fileprivate let remote: PeopleServiceRemote
-
 
     /// Designated Initializer.
     ///
     /// - Parameters:
-    ///     - blog: Target Blog Instance
-    ///     - context: CoreData context to be used.
+    ///     - siteID: The siteID this service will operate on
+    ///     - coreDataStack: CoreDataStack to be used
+    ///     - api: A WordPress.com Rest API Instance
     ///
-    init?(blog: Blog, context: NSManagedObjectContext) {
-        guard let api = blog.wordPressComRestApi(), let dotComID = blog.dotComID as? Int else {
-            return nil
-        }
-
+    init(siteID: Int, coreDataStack: CoreDataStack, api: WordPressComRestApi) {
         self.remote = PeopleServiceRemote(wordPressComRestApi: api)
-        self.siteID = dotComID
-        self.context = context
+        self.siteID = siteID
+        self.coreDataStack = coreDataStack
     }
 
     /// Loads a page of Users associated to the current blog, starting at the specified offset.
@@ -40,14 +36,14 @@ struct PeopleService {
     ///     - failure: Closure to be executed on failure.
     ///
     func loadUsersPage(_ offset: Int = 0, count: Int = 20, success: @escaping ((_ retrieved: Int, _ shouldLoadMore: Bool) -> Void), failure: ((Error) -> Void)? = nil) {
-        remote.getUsers(siteID, offset: offset, count: count, success: { users, hasMore in
-            self.mergePeople(users)
-            success(users.count, hasMore)
-
-        }, failure: { error in
+        remote.getUsers(siteID, offset: offset, count: count) { (users, hasMore) in
+            self.upsertPeople(users) {
+                success(users.count, hasMore)
+            }
+        } failure: { error in
             DDLogError(String(describing: error))
             failure?(error)
-        })
+        }
     }
 
     /// Loads a page of Followers associated to the current blog, starting at the specified offset.
@@ -59,13 +55,14 @@ struct PeopleService {
     ///     - failure: Closure to be executed on failure.
     ///
     func loadFollowersPage(_ offset: Int = 0, count: Int = 20, success: @escaping ((_ retrieved: Int, _ shouldLoadMore: Bool) -> Void), failure: ((Error) -> Void)? = nil) {
-        remote.getFollowers(siteID, offset: offset, count: count, success: { followers, hasMore in
-            self.mergePeople(followers)
-            success(followers.count, hasMore)
-        }, failure: { error in
+        remote.getFollowers(siteID, offset: offset, count: count) { (followers, hasMore) in
+            self.upsertPeople(followers) {
+                success(followers.count, hasMore)
+            }
+        } failure: { error in
             DDLogError(String(describing: error))
             failure?(error)
-        })
+        }
     }
 
     /// Loads a page of Viewers associated to the current blog, starting at the specified offset.
@@ -77,53 +74,60 @@ struct PeopleService {
     ///     - failure: Closure to be executed on failure.
     ///
     func loadViewersPage(_ offset: Int = 0, count: Int = 20, success: @escaping ((_ retrieved: Int, _ shouldLoadMore: Bool) -> Void), failure: ((Error) -> Void)? = nil) {
-        remote.getViewers(siteID, offset: offset, count: count, success: { viewers, hasMore in
-            self.mergePeople(viewers)
-            success(viewers.count, hasMore)
 
-        }, failure: { error in
+        remote.getViewers(siteID, offset: offset, count: count) { (viewers, hasMore) in
+            self.upsertPeople(viewers) {
+                success(viewers.count, hasMore)
+            }
+        } failure: { error in
             DDLogError(String(describing: error))
             failure?(error)
-        })
+        }
     }
 
     /// Updates a given User with the specified role.
     ///
     /// - Parameters:
     ///     - user: Instance of the person to be updated.
-    ///     - role: New role that should be assigned
+    ///     - newRole: New role that should be assigned
     ///     - failure: Optional closure, to be executed in case of error
     ///
     /// - Returns: A new Person instance, with the new Role already assigned.
     ///
-    func updateUser(_ user: User, role: String, failure: ((Error, User) -> Void)?) -> User {
-        guard let managedPerson = managedPersonFromPerson(user) else {
+    func updateUser(_ user: User, toRole newRole: String, failure: ((Error, User) -> Void)?) -> User {
+        precondition(Thread.isMainThread, "`PeopleService.updateUser` must be called on the main thread")
+
+        guard let managedPerson = managedPersonFromPerson(user, in: coreDataStack.mainContext) else {
             return user
         }
 
         // OP Reversal
-        let pristineRole = managedPerson.role
+        let originalRole = managedPerson.role
 
         // Hit the Backend
-        remote.updateUserRole(siteID, userID: user.ID, newRole: role, success: nil, failure: { error in
+        remote.updateUserRole(siteID, userID: user.ID, newRole: newRole, success: nil, failure: { error in
 
             DDLogError("### Error while updating person \(user.ID) in blog \(self.siteID): \(error)")
 
-            guard let managedPerson = self.managedPersonFromPerson(user) else {
-                DDLogError("### Person with ID \(user.ID) deleted before update")
-                return
+            coreDataStack.performBackgroundOperationAndSave { context in
+                guard let managedPerson = self.managedPersonFromPerson(user, in: context) else {
+                    DDLogError("### Person with ID \(user.ID) deleted before update")
+                    return
+                }
+
+                managedPerson.role = originalRole
+            } onCompletion: {
+                failure?(error, user)
             }
-
-            managedPerson.role = pristineRole
-
-            let reloadedPerson = User(managedPerson: managedPerson)
-            failure?(error, reloadedPerson)
         })
 
         // Pre-emptively update the role
-        managedPerson.role = role
+        coreDataStack.performBackgroundOperationAndSave { context in
+            let managedPerson = self.managedPersonFromPerson(user, in: context)
+            managedPerson?.role = newRole
+        }
 
-        return User(managedPerson: managedPerson)
+        return user.withRoleChangedTo(newRole)
     }
 
     /// Deletes a given User.
@@ -134,9 +138,6 @@ struct PeopleService {
     ///     - failure: Closure to be executed on error
     ///
     func deleteUser(_ user: User, success: (() -> Void)? = nil, failure: ((Error) -> Void)? = nil) {
-        guard let managedPerson = managedPersonFromPerson(user) else {
-            return
-        }
 
         // Hit the Backend
         remote.deleteUser(siteID, userID: user.ID, success: {
@@ -145,13 +146,17 @@ struct PeopleService {
             DDLogError("### Error while deleting person \(user.ID) from blog \(self.siteID): \(error)")
 
             // Revert the deletion
-            self.createManagedPerson(user)
-
-            failure?(error)
+            coreDataStack.performBackgroundOperationAndSave { (context) in
+                self.createManagedPerson(user, in: context)
+            } onCompletion: {
+                failure?(error)
+            }
         })
 
         // Pre-emptively nuke the entity
-        context.delete(managedPerson)
+        coreDataStack.performBackgroundOperationAndSave { context in
+            context.delete(managedPersonFromPerson(user, in: context))
+        }
     }
 
     /// Deletes a given Follower.
@@ -161,25 +166,26 @@ struct PeopleService {
     ///     - success: Closure to be executed in case of success.
     ///     - failure: Closure to be executed on error
     ///
-    func deleteFollower(_ person: Follower, success: (() -> Void)? = nil, failure: ((Error) -> Void)? = nil) {
-        guard let managedPerson = managedPersonFromPerson(person) else {
-            return
-        }
+    func deleteFollower(_ follower: Follower, success: (() -> Void)? = nil, failure: ((Error) -> Void)? = nil) {
 
         // Hit the Backend
-        remote.deleteFollower(siteID, userID: person.ID, success: {
+        remote.deleteFollower(siteID, userID: follower.ID, success: {
             success?()
         }, failure: { error in
-            DDLogError("### Error while deleting follower \(person.ID) from blog \(self.siteID): \(error)")
+            DDLogError("### Error while deleting follower \(follower.ID) from blog \(self.siteID): \(error)")
 
             // Revert the deletion
-            self.createManagedPerson(person)
-
-            failure?(error)
+            coreDataStack.performBackgroundOperationAndSave { context in
+                self.createManagedPerson(follower, in: context)
+            } onCompletion: {
+                failure?(error)
+            }
         })
 
         // Pre-emptively nuke the entity
-        context.delete(managedPerson)
+        coreDataStack.performBackgroundOperationAndSave { context in
+            context.delete(managedPersonFromPerson(follower, in: context))
+        }
     }
 
     /// Deletes a given Viewer.
@@ -190,7 +196,7 @@ struct PeopleService {
     ///     - failure: Closure to be executed on error
     ///
     func deleteViewer(_ person: Viewer, success: (() -> Void)? = nil, failure: ((Error) -> Void)? = nil) {
-        guard let managedPerson = managedPersonFromPerson(person) else {
+        guard let managedPerson = managedPersonFromPerson(person, in: coreDataStack.mainContext) else {
             return
         }
 
@@ -201,22 +207,29 @@ struct PeopleService {
             DDLogError("### Error while deleting viewer \(person.ID) from blog \(self.siteID): \(error)")
 
             // Revert the deletion
-            self.createManagedPerson(person)
+            coreDataStack.performBackgroundOperationAndSave { context in
+                self.createManagedPerson(person, in: context)
+            }
 
             failure?(error)
         })
 
         // Pre-emptively nuke the entity
-        context.delete(managedPerson)
+        coreDataStack.performBackgroundOperationAndSave { context in
+            let managedPerson = context.object(with: managedPerson.objectID)
+            context.delete(managedPerson)
+        }
     }
 
     /// Nukes all users from Core Data.
     ///
     func removeManagedPeople() {
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
-        request.predicate = NSPredicate(format: "siteID = %@", NSNumber(value: siteID))
-        if let objects = (try? context.fetch(request)) as? [NSManagedObject] {
-            objects.forEach { context.delete($0) }
+        coreDataStack.performBackgroundOperationAndSave { context in
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
+            request.predicate = NSPredicate(format: "siteID = %@", NSNumber(value: siteID))
+            if let objects = (try? context.fetch(request)) as? [NSManagedObject] {
+                objects.forEach { context.delete($0) }
+            }
         }
     }
 
@@ -267,22 +280,30 @@ struct PeopleService {
 /// Encapsulates all of the PeopleService Private Methods.
 ///
 private extension PeopleService {
+
+    /// Merge people from a network request into the core data stack
+    private func upsertPeople<T: Person> (_ people: [T], onCompletion: @escaping () -> Void) {
+        coreDataStack.performBackgroundOperationAndSave({ context in
+            self.mergePeople(people, in: context)
+        }, onCompletion: onCompletion)
+    }
+
     /// Updates the Core Data collection of users, to match with the array of People received.
     ///
-    func mergePeople<T: Person>(_ remotePeople: [T]) {
+    private func mergePeople<T: Person>(_ remotePeople: [T], in context: NSManagedObjectContext) {
         for remotePerson in remotePeople {
-            if let existingPerson = managedPersonFromPerson(remotePerson) {
+            if let existingPerson = managedPersonFromPerson(remotePerson, in: context) {
                 existingPerson.updateWith(remotePerson)
                 DDLogDebug("Updated person \(existingPerson)")
             } else {
-                createManagedPerson(remotePerson)
+                createManagedPerson(remotePerson, in: context)
             }
         }
     }
 
     /// Retrieves the collection of users, persisted in Core Data, associated with the current blog.
     ///
-    func loadPeople<T: Person>(_ siteID: Int, type: T.Type) -> [T] {
+    func loadPeople<T: Person>(_ siteID: Int, type: T.Type, in context: NSManagedObjectContext) -> [T] {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
         request.predicate = NSPredicate(format: "siteID = %@ AND kind = %@",
                                         NSNumber(value: siteID as Int),
@@ -300,7 +321,7 @@ private extension PeopleService {
 
     /// Retrieves a Person from Core Data, with the specifiedID.
     ///
-    func managedPersonFromPerson(_ person: Person) -> ManagedPerson? {
+    func managedPersonFromPerson(_ person: Person, in context: NSManagedObjectContext) -> ManagedPerson? {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
         request.predicate = NSPredicate(format: "siteID = %@ AND userID = %@ AND kind = %@",
                                                 NSNumber(value: siteID as Int),
@@ -314,28 +335,30 @@ private extension PeopleService {
 
     /// Nukes the set of users, from Core Data, with the specified ID's.
     ///
-    func removeManagedPeopleWithIDs<T: Person>(_ ids: Set<Int>, type: T.Type) {
+    func removeManagedPeopleWithIDs<T: Person>(_ ids: Set<Int>, type: T.Type, in context: NSManagedObjectContext) {
         if ids.isEmpty {
             return
         }
 
-        let numberIDs = ids.map { return NSNumber(value: $0 as Int) }
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
-        request.predicate = NSPredicate(format: "siteID = %@ AND kind = %@ AND userID IN %@",
-                                        NSNumber(value: siteID as Int),
-                                        NSNumber(value: type.kind.rawValue as Int),
-                                        numberIDs)
+        coreDataStack.performBackgroundOperationAndSave { context in
+            let numberIDs = ids.map { return NSNumber(value: $0 as Int) }
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Person")
+            request.predicate = NSPredicate(format: "siteID = %@ AND kind = %@ AND userID IN %@",
+                                            NSNumber(value: siteID as Int),
+                                            NSNumber(value: type.kind.rawValue as Int),
+                                            numberIDs)
 
-        let objects = (try? context.fetch(request) as? [NSManagedObject]) ?? []
-        for object in objects {
-            DDLogDebug("Removing person: \(object)")
-            context.delete(object)
+            let objects = (try? context.fetch(request) as? [NSManagedObject]) ?? []
+            for object in objects {
+                DDLogDebug("Removing person: \(object)")
+                context.delete(object)
+            }
         }
     }
 
     /// Inserts a new Person instance into Core Data, with the specified payload.
     ///
-    func createManagedPerson<T: Person>(_ person: T) {
+    func createManagedPerson<T: Person>(_ person: T, in context: NSManagedObjectContext) {
         let managedPerson = NSEntityDescription.insertNewObject(forEntityName: "Person", into: context) as! ManagedPerson
         managedPerson.updateWith(person)
         managedPerson.creationDate = Date()

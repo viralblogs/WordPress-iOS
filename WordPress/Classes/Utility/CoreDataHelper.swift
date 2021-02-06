@@ -73,6 +73,15 @@ extension NSManagedObjectContext {
         delete(object)
     }
 
+    /// Allow attempting to delete objects that may not exist
+    ///
+    func delete<T: NSManagedObject>(_ object: T?) {
+        guard let object = object else {
+            return
+        }
+        delete(object)
+    }
+
     /// Deletes all of the NSMO instances associated to the current kind
     ///
     func deleteAllObjects<T: NSManagedObject>(ofType type: T.Type) {
