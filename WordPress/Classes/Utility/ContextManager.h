@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)saveContext:(NSManagedObjectContext *)context;
 - (void)saveContext:(NSManagedObjectContext *)context withCompletionBlock:(void (^)(void))completionBlock;
 - (void)mergeChanges:(NSManagedObjectContext *)context fromContextDidSaveNotification:(NSNotification *)notification;
+- (void) performBackgroundOperationAndSave:(void (^)(NSManagedObjectContext * _Nonnull)) operation;
+- (void) performBackgroundOperationAndSave:(void (^)(NSManagedObjectContext * _Nonnull))operation onCompletion:(void (^)(void)) callback;
 @end
 
 @interface ContextManager : NSObject <CoreDataStack>

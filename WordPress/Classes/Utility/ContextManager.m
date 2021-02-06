@@ -203,6 +203,22 @@ static ContextManager *_override;
     }];
 }
 
+- (void)performBackgroundOperationAndSave:(nonnull void (^)(NSManagedObjectContext * _Nonnull))operation {
+    NSManagedObjectContext *context = [self newDerivedContext];
+    [context performBlockAndWait:^{
+        operation(context);
+    }];
+    [self saveContextAndWait:context];
+}
+
+
+- (void) performBackgroundOperationAndSave:(void (^)(NSManagedObjectContext * _Nonnull))operation onCompletion:(void (^)(void)) callback {
+    NSManagedObjectContext *context = [self newDerivedContext];
+    [context performBlock:^{
+        operation(context);
+        [self saveContext:context withCompletionBlock:callback];
+    }];
+}
 
 #pragma mark - Setup
 
