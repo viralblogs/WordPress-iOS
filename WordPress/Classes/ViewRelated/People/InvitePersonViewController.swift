@@ -13,11 +13,19 @@ class InvitePersonViewController: UITableViewController {
 
     /// Target Blog
     ///
-    @objc var blog: Blog!
+    var blog: Blog!
 
-    /// Core Data Context
+    var siteID: Int {
+        blog.dotComID!.intValue
+    }
+
+    /// People Service
     ///
-    @objc let context = ContextManager.sharedInstance().mainContext
+    var peopleService: PeopleService!
+
+    /// Role Service
+    ///
+    var roleService: RoleService!
 
     // MARK: - Private Properties
 
@@ -53,15 +61,16 @@ class InvitePersonViewController: UITableViewController {
     /// Roles available for the current site
     ///
     fileprivate var availableRoles: [RemoteRole] {
-        let blogRoles = blog?.sortedRoles ?? []
+        let blogRoles = roleService.getRoles(forSiteWithID: siteID)
         var roles = [RemoteRole]()
         let inviteRole: RemoteRole
+
         if blog.isPrivateAtWPCom() {
             inviteRole = RemoteRole.viewer
         } else {
             inviteRole = RemoteRole.follower
         }
-        roles += blogRoles.map({ $0.toUnmanaged() })
+        roles += blogRoles
         roles.append(inviteRole)
         return roles
     }
@@ -111,6 +120,10 @@ class InvitePersonViewController: UITableViewController {
     // MARK: - View Lifecyle Methods
 
     override func viewDidLoad() {
+        precondition(blog != nil, "Blog must not be nil in `InvitePersonViewController`")
+        precondition(blog.dotComID != nil, "Blog ID must not be nil in `InvitePersonViewController")
+        precondition(peopleService != nil, "People Service must not be nil in `InvitePersonViewController`")
+        precondition(roleService != nil, "Role Service must not be nil in `InvitePersonViewController")
         super.viewDidLoad()
         setupNavigationBar()
         setupDefaultRole()
@@ -280,22 +293,19 @@ extension InvitePersonViewController {
             guard let role = self.role else {
                 return
             }
-            self.sendInvitation(self.blog, recipient: recipient, role: role.slug, message: self.message ?? "")
+            self.sendInvitation(recipient: recipient, role: role.slug, message: self.message ?? "")
         }
     }
 
-    @objc func sendInvitation(_ blog: Blog, recipient: String, role: String, message: String) {
-        guard let service = PeopleService(blog: blog, context: context) else {
-            return
-        }
+    @objc func sendInvitation(recipient: String, role: String, message: String) {
 
-        service.sendInvitation(recipient, role: role, message: message, success: {
+        peopleService.sendInvitation(recipient, role: role, message: message, success: {
             let success = NSLocalizedString("Invitation Sent!", comment: "The app successfully sent an invitation")
             SVProgressHUD.showDismissibleSuccess(withStatus: success)
 
         }, failure: { error in
             self.handleSendError() {
-                self.sendInvitation(blog, recipient: recipient, role: role, message: message)
+                self.sendInvitation(recipient: recipient, role: role, message: message)
             }
         })
     }
@@ -345,7 +355,7 @@ extension InvitePersonViewController {
 private extension InvitePersonViewController {
 
     func validateInvitation() {
-        guard let usernameOrEmail = usernameOrEmail, let service = PeopleService(blog: blog, context: context) else {
+        guard let usernameOrEmail = usernameOrEmail else {
             sendActionEnabled = false
             return
         }
@@ -354,7 +364,7 @@ private extension InvitePersonViewController {
             return
         }
 
-        service.validateInvitation(usernameOrEmail, role: role.slug, success: { [weak self] in
+        peopleService.validateInvitation(usernameOrEmail, role: role.slug, success: { [weak self] in
             guard self?.shouldHandleValidationResponse(usernameOrEmail) == true else {
                 return
             }

@@ -11,10 +11,6 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
 
     private static let refreshRowPadding = 4
 
-    /// Team's Blog
-    ///
-    private var blog: Blog?
-
     /// Mode: Users / Followers
     ///
     private var filter = Filter.users {
@@ -58,8 +54,16 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
     /// Filter Predicate
     ///
     private var predicate: NSPredicate {
-        let predicate = NSPredicate(format: "siteID = %@ AND kind = %@", blog!.dotComID!, NSNumber(value: filter.personKind.rawValue as Int))
-        return predicate
+        let kindPredicate = NSPredicate(format: "kind = %@", NSNumber(value: filter.personKind.rawValue as Int))
+
+        guard let siteID = blog.dotComID else {
+            return kindPredicate
+        }
+
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            kindPredicate,
+            NSPredicate(format: "siteID = %@", siteID)
+        ])
     }
 
     /// Sort Descriptor
@@ -76,11 +80,20 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
         }
     }
 
-    /// Core Data Context
+    /// Core Data Stack
     ///
-    private lazy var context: NSManagedObjectContext = {
-        return ContextManager.sharedInstance().newMainContextChildContext()
-    }()
+    var coreDataStack: CoreDataStack!
+
+    /// People Service
+    ///
+    var peopleService: PeopleService!
+
+    /// Role Service
+    ///
+    var roleService: RoleService!
+
+    /// Blog
+    var blog: Blog!
 
     /// Core Data FRC
     ///
@@ -90,7 +103,7 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
         request.predicate = self.predicate
         request.sortDescriptors = self.sortDescriptors
 
-        let frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: self.context, sectionNameKeyPath: nil, cacheName: nil)
+        let frc = NSFetchedResultsController(fetchRequest: request, managedObjectContext: coreDataStack.mainContext, sectionNameKeyPath: nil, cacheName: nil)
         frc.delegate = self
         return frc
     }()
@@ -125,7 +138,7 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
         }
 
         let person = personAtIndexPath(indexPath)
-        let role = self.role(person: person)
+        let role = roleService.getManagedRole(slug: person.role)
         let viewModel = PeopleCellViewModel(person: person, role: role)
 
         cell.bindViewModel(viewModel)
@@ -152,6 +165,11 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
     // MARK: UIViewController
 
     override func viewDidLoad() {
+        precondition(blog != nil, "Blog must not be nil on `PeopleViewController`")
+        precondition(coreDataStack != nil, "Core Data Stack must not be nil on `PeopleViewController`")
+        precondition(peopleService != nil, "People Service must not be nil on `PeopleViewController`")
+        precondition(roleService != nil, "People Service must not be nil on `PeopleViewController`")
+
         super.viewDidLoad()
         setupView()
         observeNetworkStatus()
@@ -173,9 +191,12 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let personViewController = segue.destination as? PersonViewController,
             let selectedIndexPath = tableView.indexPathForSelectedRow {
-            personViewController.context = context
-            personViewController.blog = blog
+
+            personViewController.peopleService = peopleService
+            personViewController.roleService   = roleService
             personViewController.person = personAtIndexPath(selectedIndexPath)
+            personViewController.blog = blog
+
             switch filter {
             case .followers:
                 personViewController.screenMode = .Follower
@@ -187,6 +208,8 @@ class PeopleViewController: UITableViewController, UIViewControllerRestoration {
 
         } else if let navController = segue.destination as? UINavigationController,
             let inviteViewController = navController.topViewController as? InvitePersonViewController {
+            inviteViewController.peopleService = peopleService
+            inviteViewController.roleService = roleService
             inviteViewController.blog = blog
         }
     }
@@ -301,9 +324,8 @@ private extension PeopleViewController {
     }
 
     // MARK: Interface Helpers
-
-    func filtersAvailableForBlog(_ blog: Blog?) -> [Filter] {
-        guard let blog = blog, blog.siteVisibility == .private else {
+    var availableFilters: [Filter] {
+        guard blog.siteVisibility == .private else {
             return Filter.defaultFilters
         }
 
@@ -350,12 +372,7 @@ private extension PeopleViewController {
 
     func resetManagedPeople() {
         isInitialLoad = true
-
-        guard let blog = blog, let service = PeopleService(blog: blog, context: context) else {
-            return
-        }
-
-        service.removeManagedPeople()
+        peopleService.removeManagedPeople()
     }
 
     func loadMorePeopleIfNeeded() {
@@ -373,26 +390,18 @@ private extension PeopleViewController {
     }
 
     func loadPeoplePage(_ offset: Int = 0, success: @escaping ((_ retrieved: Int, _ shouldLoadMore: Bool) -> Void)) {
-        guard let blog = blog, let service = PeopleService(blog: blog, context: context) else {
-            return
-        }
 
         switch filter {
         case .followers:
-            service.loadFollowersPage(offset, success: success)
+            peopleService.loadFollowersPage(offset, success: success)
         case .users:
             loadUsersPage(offset, success: success)
         case .viewers:
-            service.loadViewersPage(offset, success: success)
+            peopleService.loadViewersPage(offset, success: success)
         }
     }
 
     func loadUsersPage(_ offset: Int = 0, success: @escaping ((_ retrieved: Int, _ shouldLoadMore: Bool) -> Void)) {
-        guard let blog = blogInContext,
-            let peopleService = PeopleService(blog: blog, context: context),
-            let roleService = RoleService(blog: blog, context: context) else {
-                return
-        }
 
         var result: (retrieved: Int, shouldLoadMore: Bool)?
         var loadError: Error?
@@ -408,12 +417,16 @@ private extension PeopleViewController {
         })
 
         group.enter()
-        roleService.fetchRoles(success: {_ in
+        roleService.fetchRoles { result in
+            switch result {
+                case .success:
+                    break
+                case .failure(let error):
+                    loadError = error
+            }
+
             group.leave()
-        }, failure: { error in
-            loadError = error
-            group.leave()
-        })
+        }
 
         group.notify(queue: DispatchQueue.main) { [weak self] in
             if let error = loadError {
@@ -426,17 +439,7 @@ private extension PeopleViewController {
         }
     }
 
-    var blogInContext: Blog? {
-        guard let objectID = blog?.objectID,
-            let object = try? context.existingObject(with: objectID) else {
-                return nil
-        }
-
-        return object as? Blog
-    }
-
     // MARK: No Results Helpers
-
     func refreshNoResultsView() {
         noResultsViewController.removeFromView()
 
@@ -493,18 +496,10 @@ private extension PeopleViewController {
         return managedPerson.toUnmanaged()
     }
 
-    func role(person: Person) -> Role? {
-        guard let blog = blog,
-            let service = RoleService(blog: blog, context: context) else {
-                return nil
-        }
-        return service.getRole(slug: person.role)
-    }
-
     func setupFilterBar() {
         WPStyleGuide.configureFilterTabBar(filterBar)
 
-        filterBar.items = filtersAvailableForBlog(blog)
+        filterBar.items = availableFilters
         filterBar.addTarget(self, action: #selector(selectedFilterDidChange(_:)), for: .valueChanged)
 
         // By default, let's display the Blog's Users
@@ -544,11 +539,21 @@ private extension PeopleViewController {
 extension PeopleViewController {
     class func controllerWithBlog(_ blog: Blog) -> PeopleViewController? {
         let storyboard = UIStoryboard(name: "People", bundle: nil)
-        guard let viewController = storyboard.instantiateInitialViewController() as? PeopleViewController else {
+        guard
+            let viewController = storyboard.instantiateInitialViewController() as? PeopleViewController,
+            let siteID = blog.dotComID?.intValue,
+            let wpcomRestAPI = blog.wordPressComRestApi()
+        else {
             return nil
         }
 
+        let coreDataStack = ContextManager.sharedInstance()
         viewController.blog = blog
+
+        viewController.coreDataStack = coreDataStack
+        viewController.peopleService = PeopleService(siteID: siteID, coreDataStack: coreDataStack, api: wpcomRestAPI)
+        viewController.roleService   = RoleService(siteID: siteID, coreDataStack: coreDataStack, api: wpcomRestAPI)
+
         viewController.restorationClass = self
 
         return viewController

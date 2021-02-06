@@ -51,9 +51,13 @@ final class PersonViewController: UITableViewController {
     ///
     @objc var blog: Blog!
 
-    /// Core Data Context that should be used
+    /// PeopleService
     ///
-    @objc var context: NSManagedObjectContext!
+    var peopleService: PeopleService!
+
+    /// RoleService
+    ///
+    var roleService: RoleService!
 
     /// Person to be displayed
     ///
@@ -71,8 +75,10 @@ final class PersonViewController: UITableViewController {
     // MARK: - View Lifecyle Methods
 
     override func viewDidLoad() {
-        assert(person != nil)
-        assert(blog != nil)
+        precondition(person != nil)
+        precondition(blog != nil)
+        precondition(peopleService != nil, "People Service must be set in `PersonViewController`")
+        precondition(roleService != nil, "Role Service must be set in `PersonViewController`")
 
         super.viewDidLoad()
 
@@ -149,7 +155,7 @@ final class PersonViewController: UITableViewController {
             return
         }
 
-        roleViewController.roles = blog.sortedRoles?.map({ $0.toUnmanaged() }) ?? []
+        roleViewController.roles = roleService.getRoles(forSiteWithID: person.siteID)
         roleViewController.selectedRole = person.role
         roleViewController.onChange = { [weak self] newRole in
             self?.updateUserRole(newRole)
@@ -260,8 +266,7 @@ private extension PersonViewController {
             return
         }
 
-        let service = PeopleService(blog: blog, context: context)
-        service?.deleteUser(user, success: {
+        peopleService.deleteUser(user, success: {
             WPAnalytics.track(.personRemoved)
         }, failure: {[weak self] (error: Error?) -> () in
             guard let strongSelf = self, let error = error as NSError? else {
@@ -283,8 +288,7 @@ private extension PersonViewController {
             return
         }
 
-        let service = PeopleService(blog: blog, context: context)
-        service?.deleteFollower(follower, failure: {[weak self] (error: Error?) -> () in
+        peopleService.deleteFollower(follower, failure: {[weak self] (error: Error?) -> () in
             guard let strongSelf = self, let error = error as NSError? else {
                 return
             }
@@ -301,8 +305,7 @@ private extension PersonViewController {
             return
         }
 
-        let service = PeopleService(blog: blog, context: context)
-        service?.deleteViewer(viewer, success: {
+        peopleService.deleteViewer(viewer, success: {
             WPAnalytics.track(.personRemoved)
         }, failure: {[weak self] (error: Error?) -> () in
             guard let strongSelf = self, let error = error as NSError? else {
@@ -344,12 +347,7 @@ private extension PersonViewController {
             return
         }
 
-        guard let service = PeopleService(blog: blog, context: context) else {
-            DDLogError("Couldn't instantiate People Service")
-            return
-        }
-
-        let updated = service.updateUser(user, role: newRole) { (error, reloadedPerson) in
+        let updated = peopleService.updateUser(user, toRole: newRole) { (error, reloadedPerson) in
             self.person = reloadedPerson
             self.retryUpdatingRole(newRole)
         }
@@ -564,10 +562,7 @@ private extension PersonViewController {
         case .Viewer:
             return .viewer
         case .User:
-            guard let service = RoleService(blog: blog, context: context) else {
-                return nil
-            }
-            return service.getRole(slug: person.role)?.toUnmanaged()
+            return roleService.getRole(slug: person.role)
         }
     }
 }
