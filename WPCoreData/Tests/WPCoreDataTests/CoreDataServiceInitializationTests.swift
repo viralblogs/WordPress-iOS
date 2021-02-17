@@ -1,4 +1,5 @@
 import XCTest
+import CoreData
 import WPCoreData
 
 final class CoreDataServiceInitializationTests: XCTestCase {
