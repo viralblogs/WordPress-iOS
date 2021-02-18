@@ -6,9 +6,15 @@ import CoreData
 ///
 final class CoreDataIterativeMigrator {
 
+    public enum MigrationError: Error {
+        case missingStore(url: URL)
+        case unableToDetermineLocalStoreVersion
+        case unableToFindSourceModelForStore
+    }
+
     /// The `NSPersistentStoreCoordinator` instance that will be used for replacing or destroying
     /// persistent stores.
-    private let persistentStoreCoordinator: PersistentStoreCoordinatorProtocol
+    private let persistentStoreCoordinator: NSPersistentStoreCoordinator
 
     /// The model versions that will be used for migration.
     private let modelsInventory: ManagedObjectModelsInventory
@@ -16,11 +22,16 @@ final class CoreDataIterativeMigrator {
     /// Used to determine if a given store URL exists in the file system.
     private let fileManager: FileManagerProtocol
 
-    init(coordinator: PersistentStoreCoordinatorProtocol,
+    /// Used for emitting events to the host app's logging services
+    private let logger: WPCoreDataLogging
+
+    init(coordinator: NSPersistentStoreCoordinator,
          modelsInventory: ManagedObjectModelsInventory,
+         logger: WPCoreDataLogging = DebugCoreDataLogging(),
          fileManager: FileManagerProtocol = FileManager.default) {
         self.persistentStoreCoordinator = coordinator
         self.modelsInventory = modelsInventory
+        self.logger = logger
         self.fileManager = fileManager
     }
 
@@ -36,87 +47,94 @@ final class CoreDataIterativeMigrator {
     ///
     /// - Throws: A whole bunch of crap is possible to be thrown between Core Data and FileManager.
     ///
-    func iterativeMigrate(sourceStore sourceStoreURL: URL,
-                          storeType: String,
-                          to targetModel: NSManagedObjectModel) throws -> (success: Bool, debugMessages: [String]) {
+    func iterativeMigrate(
+        sourceStore sourceStoreURL: URL,
+        storeType: String = NSSQLiteStoreType,
+        to targetModel: NSManagedObjectModel
+    ) throws {
+
         // If the persistent store does not exist at the given URL,
         // assume that it hasn't yet been created and return success immediately.
         guard fileManager.fileExists(atPath: sourceStoreURL.path) == true else {
-            return (true, ["No store exists at URL \(sourceStoreURL).  Skipping migration."])
+            throw MigrationError.missingStore(url: sourceStoreURL)
         }
 
         // Get the persistent store's metadata.  The metadata is used to
         // get information about the store's managed object model.
         let sourceMetadata =
-            try NSPersistentStoreCoordinator.metadataForPersistentStore(ofType: storeType, at: sourceStoreURL, options: nil)
+            try NSPersistentStoreCoordinator.metadataForPersistentStore(ofType: storeType, at: sourceStoreURL)
 
         // Check whether the final model is already compatible with the store.
         // If it is, no migration is necessary.
         guard targetModel.isConfiguration(withName: nil, compatibleWithStoreMetadata: sourceMetadata) == false else {
-            return (true, ["Target model is compatible with the store. No migration necessary."])
+            logger.info("Target model is compatible with the store. No migration necessary.")
+            return
         }
 
         // Find the current model used by the store.
         let sourceModel = try model(for: sourceMetadata)
 
         // Get the steps to perform the migration.
-        let steps = try MigrationStep.steps(using: modelsInventory, source: sourceModel, target: targetModel)
+        let steps = try MigrationStep.steps(
+            using: modelsInventory,
+            source: sourceModel,
+            target: targetModel
+        )
+
         guard !steps.isEmpty else {
             // Abort because there is nothing to migrate. And also to avoid accidentally deleting
             // `sourceStoreURL` during the routine below.
-            return (false, ["Skipping migration. Found no steps for migration."])
+            logger.info("Skipping migration. Found no steps for migration.")
+            return
         }
 
-        var debugMessages = [String]()
+        // Perform all the migration steps and acquire the last _migrated_ destination URL.
+        let lastTempDestinationURL = try steps.reduce(sourceStoreURL) { currentSourceStoreURL, step in
 
-        do {
-            // Perform all the migration steps and acquire the last _migrated_ destination URL.
-            let lastTempDestinationURL = try steps.reduce(sourceStoreURL) { currentSourceStoreURL, step in
-                // Log a message
-                let migrationAttemptMessage = makeMigrationAttemptLogMessage(step: step)
-                debugMessages.append(migrationAttemptMessage)
-                //DDLogWarn(migrationAttemptMessage)
+            // Log a message
+            logger.info(makeMigrationAttemptLogMessage(step: step))
 
-                // Migrate to temporary URL
-                let tempDestinationURL = try migrate(step: step,
-                                                     sourceStoreURL: currentSourceStoreURL,
-                                                     storeType: storeType)
+            // Migrate to temporary URL
+            let tempDestinationURL = try migrate(
+                step: step,
+                sourceStoreURL: currentSourceStoreURL,
+                storeType: storeType
+            )
 
-                // To keep disk space usage to a minimum, destroy the `currentSourceStoreURL`
-                // if it is a temporary migrated store URL since we will no longer need it. It's
-                // been replaced by the store at `tempDestinationURL`.
-                if currentSourceStoreURL != sourceStoreURL {
-                    try persistentStoreCoordinator.destroyPersistentStore(at: currentSourceStoreURL,
-                                                                          ofType: storeType,
-                                                                          options: nil)
-                }
-
-                return tempDestinationURL
+            // To keep disk space usage to a minimum, destroy the `currentSourceStoreURL`
+            // if it is a temporary migrated store URL since we will no longer need it. It's
+            // been replaced by the store at `tempDestinationURL`.
+            if currentSourceStoreURL != sourceStoreURL {
+                try persistentStoreCoordinator.destroyPersistentStore(
+                    at: currentSourceStoreURL,
+                    ofType: storeType,
+                    options: nil
+                )
             }
 
-            // Now that the migration steps have been performed, replace the store that the
-            // app will use with the _migrated_ store located at the `lastTempDestinationURL`.
-            //
-            // This completes the iterative migration. After this step, the store located
-            // in `sourceStoreURL` should be fully migrated and useable.
-            try persistentStoreCoordinator.replacePersistentStore(at: sourceStoreURL,
-                                                                  destinationOptions: nil,
-                                                                  withPersistentStoreFrom: lastTempDestinationURL,
-                                                                  sourceOptions: nil,
-                                                                  ofType: storeType)
-
-            // Final clean-up. Destroy the store at `lastTempDestinationURL` since it should have
-            // been copied over to `sourceStoreURL` during `replacePersistentStore` (above).
-            try persistentStoreCoordinator.destroyPersistentStore(at: lastTempDestinationURL,
-                                                                  ofType: storeType,
-                                                                  options: nil)
-
-            return (true, debugMessages)
-        } catch {
-            let errorInfo = (error as NSError?)?.userInfo ?? [:]
-            debugMessages.append("Migration error: \(error) [\(errorInfo)]")
-            return (false, debugMessages)
+            return tempDestinationURL
         }
+
+        // Now that the migration steps have been performed, replace the store that the
+        // app will use with the _migrated_ store located at the `lastTempDestinationURL`.
+        //
+        // This completes the iterative migration. After this step, the store located
+        // in `sourceStoreURL` should be fully migrated and useable.
+        try persistentStoreCoordinator.replacePersistentStore(
+            at: sourceStoreURL,
+            destinationOptions: nil,
+            withPersistentStoreFrom: lastTempDestinationURL,
+            sourceOptions: nil,
+            ofType: storeType
+        )
+
+        // Final clean-up. Destroy the store at `lastTempDestinationURL` since it should have
+        // been copied over to `sourceStoreURL` during `replacePersistentStore` (above).
+        try persistentStoreCoordinator.destroyPersistentStore(
+            at: lastTempDestinationURL,
+            ofType: storeType,
+            options: nil
+        )
     }
 }
 
@@ -146,10 +164,22 @@ private extension CoreDataIterativeMigrator {
     }
 
     func model(for metadata: [String: Any]) throws -> NSManagedObjectModel {
-        let bundle = Bundle(for: CoreDataIterativeMigrator.self)
-        guard let sourceModel = NSManagedObjectModel.mergedModel(from: [bundle], forStoreMetadata: metadata) else {
-            let description = "Failed to find source model for metadata: \(metadata)"
-            throw NSError(domain: "IterativeMigrator", code: 100, userInfo: [NSLocalizedDescriptionKey: description])
+
+        /// The store's metdata.plist file has a key that refers to its current version – we'll inspect that and use it to find our model
+        /// The store would have to be corrupt in order for this not to work, but it is *possible* (the binary `.plist` file could be invalid)
+        guard
+            let versionIdentifiers = metadata["NSStoreModelVersionIdentifiers"] as? [String],
+            let versionName: String = versionIdentifiers.first
+        else {
+            throw MigrationError.unableToDetermineLocalStoreVersion
+        }
+
+        let version = ManagedObjectModelsInventory.ModelVersion(name: versionName)
+
+        /// It should be impossible for the model not to exist because otherwise the models wouldn't be compatible.
+        guard let sourceModel = modelsInventory.model(for: version) else {
+            logger.error("Failed to find source model for metadata: \(metadata)")
+            throw MigrationError.unableToFindSourceModelForStore
         }
 
         return sourceModel
