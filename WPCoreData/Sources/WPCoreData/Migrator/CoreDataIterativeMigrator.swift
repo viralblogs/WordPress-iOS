@@ -8,7 +8,6 @@ final class CoreDataIterativeMigrator {
 
     public enum MigrationError: Error {
         case missingStore(url: URL)
-        case unableToDetermineLocalStoreVersion
         case unableToFindSourceModelForStore
     }
 
@@ -71,8 +70,13 @@ final class CoreDataIterativeMigrator {
             return
         }
 
+        let versionName = try NSPersistentStoreCoordinator.currentVersionForPersistentStore(ofType: storeType, at: sourceStoreURL)
+
         // Find the current model used by the store.
-        let sourceModel = try model(for: sourceMetadata)
+        guard let sourceModel = modelsInventory.model(for: .init(name: versionName)) else {
+            logger.error("Failed to find source model for metadata: \(sourceMetadata)")
+            throw MigrationError.unableToFindSourceModelForStore
+        }
 
         // Get the steps to perform the migration.
         let steps = try MigrationStep.steps(
@@ -161,28 +165,6 @@ private extension CoreDataIterativeMigrator {
                                   destinationOptions: nil)
 
         return tempDestinationURL
-    }
-
-    func model(for metadata: [String: Any]) throws -> NSManagedObjectModel {
-
-        /// The store's metdata.plist file has a key that refers to its current version – we'll inspect that and use it to find our model
-        /// The store would have to be corrupt in order for this not to work, but it is *possible* (the binary `.plist` file could be invalid)
-        guard
-            let versionIdentifiers = metadata["NSStoreModelVersionIdentifiers"] as? [String],
-            let versionName: String = versionIdentifiers.first
-        else {
-            throw MigrationError.unableToDetermineLocalStoreVersion
-        }
-
-        let version = ManagedObjectModelsInventory.ModelVersion(name: versionName)
-
-        /// It should be impossible for the model not to exist because otherwise the models wouldn't be compatible.
-        guard let sourceModel = modelsInventory.model(for: version) else {
-            logger.error("Failed to find source model for metadata: \(metadata)")
-            throw MigrationError.unableToFindSourceModelForStore
-        }
-
-        return sourceModel
     }
 
     /// Load a developer-defined `NSMappingModel` (`*.xcmappingmodel` file) or infer it.

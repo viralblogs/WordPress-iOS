@@ -2,17 +2,21 @@ import XCTest
 
 class CoreDataServiceWriteTests: XCTestCase {
 
+    enum Errors: Error {
+        case test
+    }
+
     func testThatEmptySynchronousWriteReturnSuccessResult() throws {
-        let service = try TestCoreDataService()
-        let result = service.performOperationAndSave { _ in }
+        let service = try TestCoreDataService.start()
+        let result = service.performWriteOperationAndWait { _ in }
         assertSuccessResult(result: result)
     }
 
     func testThatEmptyAsyncWriteReturnsSuccessResult() throws {
-        let service = try TestCoreDataService()
+        let service = try TestCoreDataService.start()
 
         waitForExpectation { exp in
-            service.performOperationAndSave { _ in } onCompletion: { result in
+            service.performWriteOperation { _ in } onCompletion: { result in
                 assertSuccessResult(result: result)
                 exp.fulfill()
             }
@@ -20,8 +24,8 @@ class CoreDataServiceWriteTests: XCTestCase {
     }
 
     func testThatSynchronousWritesArePersistedSuccessfully() throws {
-        let service = try TestCoreDataService()
-        let result = service.performOperationAndSave { context in
+        let service = try TestCoreDataService.start()
+        let result = service.performWriteOperationAndWait { context in
             let blog = Blog(context: context)
             blog.id = 1
             blog.title = "Test"
@@ -31,10 +35,10 @@ class CoreDataServiceWriteTests: XCTestCase {
     }
 
     func testThatAsyncWritesArePersistedSuccessfully() throws {
-        let service = try TestCoreDataService()
+        let service = try TestCoreDataService.start()
 
         waitForExpectation { exp in
-            service.performOperationAndSave { context in
+            service.performWriteOperation { context in
                 let blog = Blog(context: context)
                 blog.id = 1
                 blog.title = "Test"
@@ -49,8 +53,8 @@ class CoreDataServiceWriteTests: XCTestCase {
     }
 
     func testThatSynchronousWriteErrorsAreEmittedOnSave() throws {
-        let service = try TestCoreDataService()
-        let result = service.performOperationAndSave { context in
+        let service = try TestCoreDataService.start()
+        let result = service.performWriteOperationAndWait { context in
             let blog = Blog(context: context)
             /// Blog requires an `id` set, but we're not doing that here
             blog.title = "Test"
@@ -59,13 +63,34 @@ class CoreDataServiceWriteTests: XCTestCase {
     }
 
     func testThatAsyncWriteErrorsAreEmittedOnSave() throws {
-        let service = try TestCoreDataService()
+        let service = try TestCoreDataService.start()
 
         waitForExpectation { exp in
-            service.performOperationAndSave { context in
+            service.performWriteOperation { context in
                 let blog = Blog(context: context)
                 /// Blog requires an `id` set, but we're not doing that here
                 blog.title = "Test"
+            } onCompletion: { result in
+                assertFailureResult(result: result)
+                exp.fulfill()
+            }
+        }
+    }
+
+    func testThatSynchronousOperationErrorsAreEmitted() throws {
+        let service = try TestCoreDataService.start()
+        let result = service.performWriteOperationAndWait { context in
+            throw Errors.test
+        }
+        assertFailureResult(result: result)
+    }
+
+    func testThatAsyncOperationErrorsAreEmitted() throws {
+        let service = try TestCoreDataService.start()
+
+        waitForExpectation { exp in
+            service.performWriteOperation { context in
+                throw Errors.test
             } onCompletion: { result in
                 assertFailureResult(result: result)
                 exp.fulfill()

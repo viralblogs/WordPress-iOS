@@ -3,6 +3,11 @@ import CoreData
 @objc
 open class CoreDataService: NSObject, CoreDataStack {
 
+    public enum CoreDataServiceError: Error {
+        case unableToReadModel
+        case storeUrlIsNotWriteable
+    }
+
     @objc
     public var viewContext: NSManagedObjectContext {
         container.viewContext
@@ -10,13 +15,31 @@ open class CoreDataService: NSObject, CoreDataStack {
 
     public let name: String
 
-    private let container: NSPersistentContainer
+    internal let container: NSPersistentContainer
 
-    public init(name: String = "", managedObjectModel: NSManagedObjectModel, storeDescription: NSPersistentStoreDescription) {
-        container = NSPersistentContainer(name: name, managedObjectModel: managedObjectModel)
+    private let modelURL: URL
+    private let storeURL: URL
+
+    private let storeType: String
+
+    public init(
+        name: String = Bundle.main.bundleIdentifier ?? "CoreData",
+        modelURL: URL,
+        storeDescription: NSPersistentStoreDescription
+    ) {
+        precondition(FileManager.default.fileExists(atPath: modelURL.path), "There is no model at \(modelURL)")
+
+        let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)
+        precondition(managedObjectModel != nil, "Unable to read model from \(modelURL)")
+
+        container = NSPersistentContainer(name: name, managedObjectModel: managedObjectModel!)
         container.persistentStoreDescriptions = [storeDescription]
 
         self.name = name
+        self.modelURL = modelURL
+        self.storeType = storeDescription.type
+        self.storeURL = storeDescription.url!
+
         super.init()
     }
 
@@ -24,6 +47,8 @@ open class CoreDataService: NSObject, CoreDataStack {
     public func start() throws -> Self  {
         precondition(Thread.isMainThread, "The synchronous version of CoreDataService.start must be called from the main thread")
         var loadingError: Error?
+
+        try migrateDataModelIfNeeded()
 
         let sema = DispatchSemaphore(value: 0)
 
@@ -46,6 +71,14 @@ open class CoreDataService: NSObject, CoreDataStack {
     }
 
     public func start(onCompletion: @escaping (Result<Void, Error>) -> Void) {
+
+        do {
+            try migrateDataModelIfNeeded()
+        } catch let error {
+            onCompletion(.failure(error))
+            return
+        }
+
         container.loadPersistentStores { storeDescription, error in
             guard let error = error else {
                 onCompletion(.success(()))
@@ -56,23 +89,34 @@ open class CoreDataService: NSObject, CoreDataStack {
         }
     }
 
-    public func performOperationAndSave(synchronous operation: @escaping (NSManagedObjectContext) -> Void) -> Result<Void, Error> {
+    public func performWriteOperationAndWait(_ operation: @escaping (NSManagedObjectContext) throws -> Void) -> Result<Void, Error> {
 
+        precondition(container.persistentStoreCoordinator.persistentStores.count > 0, "You must call `start` on CoreDataService` before performing queries")
         let context = container.newBackgroundContext()
 
         var result: Result<Void, Error>!
         context.performAndWait {
-            operation(context)
-            result = save(context: context)
+            do {
+                try operation(context)
+                result = save(context: context)
+            } catch let error {
+                result = .failure(error)
+            }
         }
         return result
     }
 
-    public func performOperationAndSave(_ operation: @escaping (NSManagedObjectContext) -> Void, onCompletion: @escaping (Result<Void, Error>) -> Void) {
-        
+    public func performWriteOperation(_ operation: @escaping (NSManagedObjectContext) throws -> Void, onCompletion: @escaping (Result<Void, Error>) -> Void) {
+
+        precondition(container.persistentStoreCoordinator.persistentStores.count > 0, "You must call `start` on CoreDataService` before performing queries")
+
         container.performBackgroundTask { context in
-            operation(context)
-            onCompletion(self.save(context: context))
+            do {
+                try operation(context)
+                onCompletion(self.save(context: context))
+            } catch let error {
+                onCompletion(.failure(error))
+            }
         }
     }
 
@@ -87,5 +131,28 @@ open class CoreDataService: NSObject, CoreDataStack {
         } catch let error {
             return .failure(error)
         }
+    }
+
+    private func migrateDataModelIfNeeded() throws {
+        /// If the model is in-memory or hasn't been created yet there's no work for us to do
+        guard
+            storeType != NSInMemoryStoreType,
+            FileManager.default.fileExists(atPath: storeURL.path)
+        else {
+            return
+        }
+
+        let modelInventory = try ManagedObjectModelsInventory.from(packageURL: modelURL)
+
+        let migrator = CoreDataIterativeMigrator(
+            coordinator: container.persistentStoreCoordinator,
+            modelsInventory: modelInventory
+        )
+
+        try migrator.iterativeMigrate(
+            sourceStore: storeURL,
+            storeType: storeType,
+            to: modelInventory.currentModel
+        )
     }
 }

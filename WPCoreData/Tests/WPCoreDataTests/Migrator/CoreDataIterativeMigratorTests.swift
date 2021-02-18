@@ -30,35 +30,6 @@ final class CoreDataIterativeMigratorTests: XCTestCase {
         super.tearDown()
     }
 
-
-    /// Tests that model versions are not compatible with each other.
-    ///
-    /// This protects us from mistakes like adding a new model version that has **no structural
-    /// changes** and not setting the Hash Modifier. An example of that is creating a new model
-    /// but only renaming the entity classes. If we forget to change the model's Hash Modifier,
-    /// then the `CoreDataManager.migrateDataModelIfNecessary` will (correctly) **skip** the
-    /// migration. See here for more information: https://tinyurl.com/yxzpwp7t.
-    ///
-    /// This loops through **all NSManagedObjectModels**, performs a migration, and checks for
-    /// compatibility with all the other versions. For example, for "Model 3":
-    ///
-    /// 1. Migrate the store from previous model (Model 2) to Model 3.
-    /// 2. Check that Model 3 is compatible with the _migrated_ store. This verifies the migration.
-    /// 3. Check that Models 1, 2, 4, 5, 6, 7, and so on are **not** compatible with the _migrated_ store.
-    ///
-    /// ## Testing
-    ///
-    /// You can make this test fail by:
-    ///
-    /// 1. Creating a new model version for `WooCommerce.xcdatamodeld`, copying the latest version.
-    /// 2. Running this test.
-    ///
-    /// And then make this pass again by setting a Hash Modifier value for the new model.
-    ///
-    func test_all_model_versions_are_not_compatible_with_each_other() throws {
-
-    }
-
     func testThatIterativeMigratorThrowsForMissingDatabaseFile() throws {
         // Given
         let databaseURL = URL(fileURLWithPath: "database-file-that-does-not-exist")
@@ -104,7 +75,7 @@ final class CoreDataIterativeMigratorTests: XCTestCase {
         // Given
         let container = try createStore(atVersion: .current)
         let databaseURL = try XCTUnwrap(container.persistentStoreDescriptions.first?.url)
-        let incompatibleModel = testModel
+        let incompatibleModel = NSManagedObjectModel()
 
         // When
         let migrator = CoreDataIterativeMigrator(
