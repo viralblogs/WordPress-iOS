@@ -13,6 +13,7 @@ class GutenbergSettings {
             return "kShowGutenbergPhase2Dialog-" + url
         }
         static let focalPointPickerTooltipShown = "kGutenbergFocalPointPickerTooltipShown"
+        static let onboardingTipsShown = "kGutenbergOnboardingTipsShown"
 
         private static func urlStringFrom(_ blog: Blog) -> String {
             return (blog.url ?? "")
@@ -165,6 +166,19 @@ class GutenbergSettings {
         }
         set {
             database.set(newValue, forKey: Key.focalPointPickerTooltipShown)
+        }
+    }
+
+    /// String of comma separate tip names that have been shown
+    var onboardingTipsShown: String {
+        get {
+            if let tipsShown = database.object(forKey: Key.onboardingTipsShown) {
+                return tipsShown as! String
+            }
+            return ""
+        }
+        set {
+            database.set(newValue, forKey: Key.onboardingTipsShown)
         }
     }
 

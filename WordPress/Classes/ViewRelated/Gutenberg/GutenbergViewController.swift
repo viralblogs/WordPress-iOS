@@ -926,6 +926,14 @@ extension GutenbergViewController: GutenbergBridgeDelegate {
         gutenbergSettings.focalPointPickerTooltipShown = tooltipShown
     }
 
+    func gutenbergDidRequestOnboardingTipsShown() -> String {
+        return gutenbergSettings.onboardingTipsShown
+    }
+
+    func gutenbergDidRequestSetOnboardingTipsShown(_ tipsShown: String) {
+        gutenbergSettings.onboardingTipsShown = tipsShown
+    }
+
     func gutenbergDidSendButtonPressedAction(_ buttonType: Gutenberg.ActionButtonType) {
         switch buttonType {
             case .missingBlockAlertActionButton:
