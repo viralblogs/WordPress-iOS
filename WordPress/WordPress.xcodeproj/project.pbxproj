@@ -1284,6 +1284,11 @@
 		8BC6020D2390412000EFE3D0 /* NullBlogPropertySanitizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC6020C2390412000EFE3D0 /* NullBlogPropertySanitizerTests.swift */; };
 		8BCB83D124C21063001581BD /* ReaderStreamViewController+Ghost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCB83D024C21063001581BD /* ReaderStreamViewController+Ghost.swift */; };
 		8BCF957A24C6044000712056 /* ReaderTopicsCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCF957924C6044000712056 /* ReaderTopicsCardCell.swift */; };
+		8BD11B762624D4E8004D0295 /* AuthenticationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD11B752624D4E7004D0295 /* AuthenticationHandler.swift */; };
+		8BD11B772624D4E8004D0295 /* AuthenticationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD11B752624D4E7004D0295 /* AuthenticationHandler.swift */; };
+		8BD11BAC2624D8E8004D0295 /* AppDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD11BAB2624D8E8004D0295 /* AppDependency.swift */; };
+		8BD11BAD2624D8E8004D0295 /* AppDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD11BAB2624D8E8004D0295 /* AppDependency.swift */; };
+		8BD11BC12624D90E004D0295 /* AppDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD11BBF2624D90D004D0295 /* AppDependency.swift */; };
 		8BD36E022395CAEA00EFFF1C /* MediaEditorOperation+Description.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD36E012395CAEA00EFFF1C /* MediaEditorOperation+Description.swift */; };
 		8BD36E062395CC4400EFFF1C /* MediaEditorOperation+DescriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD36E052395CC4400EFFF1C /* MediaEditorOperation+DescriptionTests.swift */; };
 		8BD6E34A2477514E009AE97C /* TestContextManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BD6E3492477514E009AE97C /* TestContextManager.m */; };
@@ -1834,10 +1839,7 @@
 		C7F7ABD6261CED7A00CE547F /* JetpackAuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F7ABD5261CED7A00CE547F /* JetpackAuthenticationManager.swift */; };
 		C7F7AC75261CF1F300CE547F /* JetpackLoginErrorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F7AC73261CF1F300CE547F /* JetpackLoginErrorViewController.swift */; };
 		C7F7AC76261CF1F300CE547F /* JetpackLoginErrorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C7F7AC74261CF1F300CE547F /* JetpackLoginErrorViewController.xib */; };
-		C7F7AC99261E466C00CE547F /* JetpackLoginErrorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F7AC73261CF1F300CE547F /* JetpackLoginErrorViewController.swift */; };
-		C7F7ACAB261E4A1300CE547F /* JetpackAuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F7ABD5261CED7A00CE547F /* JetpackAuthenticationManager.swift */; };
 		C7F7ACBE261E4F0600CE547F /* JetpackErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F7ACBD261E4F0600CE547F /* JetpackErrorViewModel.swift */; };
-		C7F7ACD0261E4FF600CE547F /* JetpackErrorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F7ACBD261E4F0600CE547F /* JetpackErrorViewModel.swift */; };
 		C80512FE243FFD4B00B6B04D /* TenorDataSouceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C856749B243F462F001A995E /* TenorDataSouceTests.swift */; };
 		C81CCD63243AECA100A83E27 /* TenorClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81CCD5E243AECA000A83E27 /* TenorClient.swift */; };
 		C81CCD64243AECA100A83E27 /* TenorMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81CCD5F243AECA000A83E27 /* TenorMediaObject.swift */; };
@@ -5794,6 +5796,9 @@
 		8BC6020C2390412000EFE3D0 /* NullBlogPropertySanitizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NullBlogPropertySanitizerTests.swift; sourceTree = "<group>"; };
 		8BCB83D024C21063001581BD /* ReaderStreamViewController+Ghost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReaderStreamViewController+Ghost.swift"; sourceTree = "<group>"; };
 		8BCF957924C6044000712056 /* ReaderTopicsCardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderTopicsCardCell.swift; sourceTree = "<group>"; };
+		8BD11B752624D4E7004D0295 /* AuthenticationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationHandler.swift; sourceTree = "<group>"; };
+		8BD11BAB2624D8E8004D0295 /* AppDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependency.swift; sourceTree = "<group>"; };
+		8BD11BBF2624D90D004D0295 /* AppDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependency.swift; sourceTree = "<group>"; };
 		8BD36E012395CAEA00EFFF1C /* MediaEditorOperation+Description.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaEditorOperation+Description.swift"; sourceTree = "<group>"; };
 		8BD36E052395CC4400EFFF1C /* MediaEditorOperation+DescriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaEditorOperation+DescriptionTests.swift"; sourceTree = "<group>"; };
 		8BD6E3492477514E009AE97C /* TestContextManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestContextManager.m; sourceTree = "<group>"; };
@@ -12474,6 +12479,7 @@
 			children = (
 				C7F7ABD5261CED7A00CE547F /* JetpackAuthenticationManager.swift */,
 				C7F7AC72261CF1C900CE547F /* ViewRelated */,
+				8BD11B752624D4E7004D0295 /* AuthenticationHandler.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -13584,6 +13590,7 @@
 			isa = PBXGroup;
 			children = (
 				FA25F9FD2609AA830005E08F /* AppConfiguration.swift */,
+				8BD11BAB2624D8E8004D0295 /* AppDependency.swift */,
 				FAD2538E26116A1600EDAF88 /* AppStyleGuide.swift */,
 			);
 			path = "App Configuration";
@@ -13593,6 +13600,7 @@
 			isa = PBXGroup;
 			children = (
 				FA25FA332609AAAA0005E08F /* AppConfiguration.swift */,
+				8BD11BBF2624D90D004D0295 /* AppDependency.swift */,
 				FAD2544126116CEA00EDAF88 /* AppStyleGuide.swift */,
 			);
 			name = "App Configuration";
@@ -16066,7 +16074,6 @@
 				D83CA3AB20842E5F0060E310 /* StockPhotosResultsPage.swift in Sources */,
 				4348C88321002FBD00735DC0 /* QuickStartTourGuide.swift in Sources */,
 				8BA77BCF2483415400E1EBBF /* ReaderDetailToolbar.swift in Sources */,
-				C7F7AC99261E466C00CE547F /* JetpackLoginErrorViewController.swift in Sources */,
 				E102B7901E714F24007928E8 /* RecentSitesService.swift in Sources */,
 				E1D7FF381C74EB0E00E7E5E5 /* PlanService.swift in Sources */,
 				F1655B4822A6C2FA00227BFB /* Routes+Mbar.swift in Sources */,
@@ -16786,7 +16793,6 @@
 				BE13B3E71B2B58D800A4211D /* BlogListViewController.m in Sources */,
 				C768B5B425828A5D00556E75 /* JetpackScanStatusCell.swift in Sources */,
 				B532D4E9199D4357006E4DF6 /* NoteBlockCommentTableViewCell.swift in Sources */,
-				C7F7ACD0261E4FF600CE547F /* JetpackErrorViewModel.swift in Sources */,
 				73BFDA8A211D054800907245 /* Notifiable.swift in Sources */,
 				404B35D322E9BA0800AD0B37 /* RegisterDomainDetailsViewModel+CountryDialCodes.swift in Sources */,
 				D8EB1FD121900810002AE1C4 /* BlogListViewController+SiteCreation.swift in Sources */,
@@ -17034,6 +17040,7 @@
 				40C403EC2215CD1300E8C894 /* SearchResultsStatsRecordValue+CoreDataProperties.swift in Sources */,
 				82FC612C1FA8B7FC00A1757E /* ActivityListRow.swift in Sources */,
 				436110E022C4241A000773AD /* UIColor+MurielColorsObjC.swift in Sources */,
+				8BD11BAC2624D8E8004D0295 /* AppDependency.swift in Sources */,
 				B5B68BD41C19AAED00EB59E0 /* InteractiveNotificationsManager.swift in Sources */,
 				46183CF5251BD658004F9AFD /* PageTemplateLayout+CoreDataProperties.swift in Sources */,
 				B54E1DF01A0A7BAA00807537 /* ReplyBezierView.swift in Sources */,
@@ -17133,6 +17140,7 @@
 				08216FCA1CDBF96000304BA7 /* MenuItemEditingFooterView.m in Sources */,
 				E6D3E8491BEBD871002692E8 /* ReaderCrossPostCell.swift in Sources */,
 				E10290741F30615A00DAC588 /* Role.swift in Sources */,
+				8BD11B762624D4E8004D0295 /* AuthenticationHandler.swift in Sources */,
 				B0637527253E7CEC00FD45D2 /* SuggestionsTableView.swift in Sources */,
 				08216FD11CDBF96000304BA7 /* MenuItemSourceResultsViewController.m in Sources */,
 				435B762222973D0600511813 /* UIColor+MurielColors.swift in Sources */,
@@ -17260,7 +17268,6 @@
 				7E92A1FB233CB1B7006D281B /* Autosaver.swift in Sources */,
 				9A341E5621997A340036662E /* BlogAuthor.swift in Sources */,
 				9A341E5721997A340036662E /* Blog+BlogAuthors.swift in Sources */,
-				C7F7ACAB261E4A1300CE547F /* JetpackAuthenticationManager.swift in Sources */,
 				7E3AB3DB20F52654001F33B6 /* ActivityContentStyles.swift in Sources */,
 				469CE06D24BCED75003BDC8B /* CategorySectionTableViewCell.swift in Sources */,
 				9A034CEB237DB8660047B41B /* StatsForegroundObservable.swift in Sources */,
@@ -18592,6 +18599,7 @@
 				3F810A5B2616870C00ADDCC2 /* UnifiedPrologueIntroContentView.swift in Sources */,
 				FABB22A82602FC2C00C8785C /* TableDataCoordinator.swift in Sources */,
 				FABB22A92602FC2C00C8785C /* SettingsMultiTextViewController.m in Sources */,
+				8BD11BAD2624D8E8004D0295 /* AppDependency.swift in Sources */,
 				FABB22AA2602FC2C00C8785C /* FilterSheetViewController.swift in Sources */,
 				FABB22AB2602FC2C00C8785C /* Plan.swift in Sources */,
 				FABB22AC2602FC2C00C8785C /* DiscussionSettingsViewController.swift in Sources */,
@@ -19195,6 +19203,7 @@
 				FABB24FD2602FC2C00C8785C /* StockPhotosDataLoader.swift in Sources */,
 				FABB24FE2602FC2C00C8785C /* ReaderTopicToReaderTagTopic37to38.swift in Sources */,
 				FABB24FF2602FC2C00C8785C /* ChangeUsernameViewModel.swift in Sources */,
+				8BD11B772624D4E8004D0295 /* AuthenticationHandler.swift in Sources */,
 				FABB25002602FC2C00C8785C /* PlansLoadingIndicatorView.swift in Sources */,
 				FABB25012602FC2C00C8785C /* JetpackScanThreatDetailsViewController.swift in Sources */,
 				FABB25022602FC2C00C8785C /* NotificationTextContent.swift in Sources */,
@@ -19362,6 +19371,7 @@
 				FABB25A32602FC2C00C8785C /* ReachabilityUtils+OnlineActions.swift in Sources */,
 				FABB25A42602FC2C00C8785C /* TableViewKeyboardObserver.swift in Sources */,
 				FABB25A52602FC2C00C8785C /* BlogToJetpackAccount.m in Sources */,
+				8BD11BC12624D90E004D0295 /* AppDependency.swift in Sources */,
 				FABB25A62602FC2C00C8785C /* NotificationSettingsViewController.swift in Sources */,
 				FABB25A72602FC2C00C8785C /* ChangeUsernameViewController.swift in Sources */,
 				FABB25A82602FC2C00C8785C /* RichTextView.swift in Sources */,
