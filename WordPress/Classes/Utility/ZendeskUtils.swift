@@ -337,15 +337,19 @@ extension NSNotification.Name {
 private extension ZendeskUtils {
 
     static func getZendeskCredentials() -> Bool {
-        guard let appId = ApiCredentials.zendeskAppId(),
-            let url = ApiCredentials.zendeskUrl(),
-            let clientId = ApiCredentials.zendeskClientId(),
+
+        let appId = ApiCredentials.zendeskAppId
+        let url = ApiCredentials.zendeskUrl
+        let clientId = ApiCredentials.zendeskClientId
+
+        guard
             !appId.isEmpty,
             !url.isEmpty,
-            !clientId.isEmpty else {
-                DDLogInfo("Unable to get Zendesk credentials.")
-                toggleZendesk(enabled: false)
-                return false
+            !clientId.isEmpty
+        else {
+            DDLogInfo("Unable to get Zendesk credentials.")
+            toggleZendesk(enabled: false)
+            return false
         }
 
         zdAppID = appId

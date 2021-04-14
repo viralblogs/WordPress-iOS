@@ -95,6 +95,8 @@ WordPress/Resources/Icons-Internal
 # Everything without a .enc extension is ignored
 .configure-files/*
 !.configure-files/*.enc
+Secrets.swift
+
 
 # Ignoring old locations to be sure they aren't commited accidentally
 WordPress/Credentials/wpcom_app_credentials

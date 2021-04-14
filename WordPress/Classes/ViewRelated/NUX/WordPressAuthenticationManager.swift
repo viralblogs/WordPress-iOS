@@ -35,6 +35,7 @@ class WordPressAuthenticationManager: NSObject {
         // Ref https://github.com/wordpress-mobile/WordPress-iOS/pull/12332#issuecomment-521994963
         let enableSignInWithApple = AppConfiguration.allowSignUp && !(BuildConfiguration.current ~= [.a8cBranchTest, .a8cPrereleaseTesting])
 
+<<<<<<< Updated upstream
         let configuration = WordPressAuthenticatorConfiguration(wpcomClientId: ApiCredentials.client(),
                                                                 wpcomSecret: ApiCredentials.secret(),
                                                                 wpcomScheme: WPComScheme,
@@ -51,6 +52,25 @@ class WordPressAuthenticationManager: NSObject {
                                                                 enableSignupWithGoogle: AppConfiguration.allowSignUp,
                                                                 enableUnifiedAuth: true,
                                                                 enableUnifiedCarousel: FeatureFlag.unifiedPrologueCarousel.enabled)
+=======
+        let configuration = WordPressAuthenticatorConfiguration(
+            wpcomClientId: ApiCredentials.client,
+            wpcomSecret: ApiCredentials.secret,
+            wpcomScheme: WPComScheme,
+            wpcomTermsOfServiceURL: WPAutomatticTermsOfServiceURL,
+            wpcomBaseURL: WordPressComOAuthClient.WordPressComOAuthDefaultBaseUrl,
+            wpcomAPIBaseURL: Environment.current.wordPressComApiBase,
+            googleLoginClientId: ApiCredentials.googleLoginClientId,
+            googleLoginServerClientId: ApiCredentials.googleLoginServerClientId,
+            googleLoginScheme: ApiCredentials.googleLoginSchemeId,
+            userAgent: WPUserAgent.wordPress(),
+            showLoginOptions: true,
+            enableSignInWithApple: enableSignInWithApple,
+            enableSignupWithGoogle: true,
+            enableUnifiedAuth: true,
+            enableUnifiedCarousel: FeatureFlag.unifiedPrologueCarousel.enabled
+        )
+>>>>>>> Stashed changes
 
         let prologueVC: UIViewController? =  FeatureFlag.unifiedPrologueCarousel.enabled ? UnifiedPrologueViewController() : nil
         let statusBarStyle: UIStatusBarStyle = FeatureFlag.unifiedPrologueCarousel.enabled ? .default : .lightContent
