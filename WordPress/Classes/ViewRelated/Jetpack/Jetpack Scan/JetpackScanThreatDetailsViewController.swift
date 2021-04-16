@@ -55,7 +55,7 @@ class JetpackScanThreatDetailsViewController: UIViewController {
 
     // MARK: - Init
 
-    init(blog: Blog, threat: JetpackScanThreat, hasValidCredentials: Bool) {
+    init(blog: Blog, threat: JetpackScanThreat, hasValidCredentials: Bool = false) {
         self.blog = blog
         self.threat = threat
         self.hasValidCredentials = hasValidCredentials
@@ -124,12 +124,12 @@ class JetpackScanThreatDetailsViewController: UIViewController {
 
     @IBAction func warningButtonTapped(_ sender: Any) {
         guard let siteID = blog.dotComID as? Int,
-              let jetpackSettingsURL = AppConstants.jetpackSettingsURL(siteID: siteID) else {
+              let controller = WebViewControllerFactory.jetpackSettingsWebViewController(siteID: siteID)
+        else {
             displayNotice(title: Strings.jetpackSettingsNotice)
             return
         }
 
-        let controller = WebViewControllerFactory.controller(url: jetpackSettingsURL)
         let navVC = UINavigationController(rootViewController: controller)
         present(navVC, animated: true)
     }
@@ -170,7 +170,7 @@ extension JetpackScanThreatDetailsViewController {
 
         if let fixActionTitle = viewModel.fixActionTitle {
             fixThreatButton.setTitle(fixActionTitle, for: .normal)
-            fixThreatButton.isEnabled = viewModel.hasValidCredentials
+            fixThreatButton.isEnabled = viewModel.fixActionEnabled
             fixThreatButton.isHidden = false
         } else {
             fixThreatButton.isHidden = true
