@@ -750,6 +750,7 @@ import "./ScreenshotFastfile"
       deployment_target_version: options[:ios_version],
       test_without_building: true,
       xctestrun: testPlanPath,
+      suppress_xcode_output: true,
       try_count: options[:try_count],
       output_directory: File.join(PROJECT_ROOT_FOLDER, "build", "results"),
       result_bundle: true
