@@ -195,6 +195,13 @@ open class QuickStartTourGuide: NSObject {
         return currentElement() == element
     }
 
+    /// Tell QuickStart that a `UIAlertController` will be presented so that it can dismiss
+    /// any active notices.
+    @objc func handleAlertPresentation() {
+        dismissSuggestion()
+        dismissCurrentNotice()
+    }
+
     @objc func visited(_ element: QuickStartTourElement) {
         guard let currentElement = currentElement(),
             let tourState = currentTourState else {

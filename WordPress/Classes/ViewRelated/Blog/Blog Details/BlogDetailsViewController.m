@@ -1185,7 +1185,8 @@ NSString * const WPCalypsoDashboardPath = @"https://wordpress.com/stats/";
 
 - (void)showUpdateSiteIconAlert
 {
-    
+
+    [QuickStartTourGuide.shared handleAlertPresentation];
     
     UIAlertController *updateIconAlertController = [UIAlertController alertControllerWithTitle:nil
                                                                                        message:nil
