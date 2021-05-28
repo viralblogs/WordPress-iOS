@@ -35,6 +35,11 @@ extension WPTabBarController {
         quickStartObserver = observer as? NSObject
     }
 
+    #warning("Temporary code. Do not commit.")
+    @objc func setupQS(for blog: Blog) {
+        QuickStartTourGuide.shared.setup(for: blog)
+    }
+
     @objc func alertQuickStartThatReaderWasTapped() {
         QuickStartTourGuide.shared.visited(.readerTab)
     }

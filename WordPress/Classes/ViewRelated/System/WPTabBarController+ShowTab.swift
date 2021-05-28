@@ -2,6 +2,10 @@ extension WPTabBarController {
 
     @objc func showPageEditor(forBlog: Blog? = nil) {
         showPageEditor(blog: forBlog)
+
+        if let blog = forBlog {
+            setupQS(for: blog)
+        }
     }
 
     @objc func showStoryEditor(forBlog: Blog? = nil) {

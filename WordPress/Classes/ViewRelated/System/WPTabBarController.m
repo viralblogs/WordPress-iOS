@@ -301,6 +301,11 @@ static NSInteger const WPTabBarIconOffsetiPhone = 5;
 - (void)showPostTab
 {
     [self showPostTabWithCompletion:nil];
+
+    #warning Temporary code. Do not commit.
+    if ([self currentlyVisibleBlog] != nil)  {
+        [self setupQSFor:[self currentlyVisibleBlog]];
+    }
 }
 
 - (void)showPostTabWithCompletion:(void (^)(void))afterDismiss
