@@ -1,8 +1,7 @@
-import UITestsFoundation
 import XCTest
 
-class SiteSettingsScreen: BaseScreen {
-    enum Toggle {
+public class SiteSettingsScreen: BaseScreen {
+    public enum Toggle {
         case on
         case off
     }
@@ -10,7 +9,7 @@ class SiteSettingsScreen: BaseScreen {
     let blockEditorToggle: XCUIElement
     let tabBar: TabNavComponent
 
-    init() {
+    public init() {
         settingsTable = XCUIApplication().tables["siteSettingsTable"]
         blockEditorToggle = settingsTable.switches["useBlockEditorSwitch"]
         tabBar = TabNavComponent()
@@ -19,7 +18,7 @@ class SiteSettingsScreen: BaseScreen {
     }
 
     @discardableResult
-    func toggleBlockEditor(to state: Toggle) -> SiteSettingsScreen {
+    public func toggleBlockEditor(to state: Toggle) -> SiteSettingsScreen {
         switch state {
         case .on:
             if !isBlockEditorEnabled() {
@@ -33,7 +32,7 @@ class SiteSettingsScreen: BaseScreen {
         return self
     }
 
-    func goBackToMySite() -> MySiteScreen {
+    public func goBackToMySite() -> MySiteScreen {
         if isIPhone {
             navBackButton.tap()
         }
@@ -44,7 +43,7 @@ class SiteSettingsScreen: BaseScreen {
         return blockEditorToggle.value as! String == "1"
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().navigationBars["Settings"].exists
     }
 }

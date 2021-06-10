@@ -1,4 +1,3 @@
-import UITestsFoundation
 import XCTest
 
 // TODO: remove when unifiedAuth is permanent.
@@ -8,24 +7,24 @@ private struct ElementStringIDs {
     static let signupButton = "Prologue Signup Button"
 }
 
-class WelcomeScreen: BaseScreen {
+public class WelcomeScreen: BaseScreen {
     let logInButton: XCUIElement
     let signupButton: XCUIElement
 
-    init() {
+    public init() {
         logInButton = XCUIApplication().buttons[ElementStringIDs.loginButton]
         signupButton = XCUIApplication().buttons[ElementStringIDs.signupButton]
 
         super.init(element: logInButton)
     }
 
-    func selectSignup() -> WelcomeScreenSignupComponent {
+    public func selectSignup() -> WelcomeScreenSignupComponent {
         signupButton.tap()
 
         return WelcomeScreenSignupComponent()
     }
 
-    func selectLogin() -> WelcomeScreenLoginComponent {
+    public func selectLogin() -> WelcomeScreenLoginComponent {
         logInButton.tap()
 
         return WelcomeScreenLoginComponent()

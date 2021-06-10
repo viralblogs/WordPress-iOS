@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class BlockEditorScreen: BaseScreen {
+public class BlockEditorScreen: BaseScreen {
 
     // Navigation bar
     let editorNavBar = XCUIApplication().navigationBars["Gutenberg Editor Navigation Bar"]
@@ -28,7 +27,7 @@ class BlockEditorScreen: BaseScreen {
     let postSettingsButton = XCUIApplication().sheets.buttons["Post Settings"] // Uses a localized string
     let keepEditingButton = XCUIApplication().sheets.buttons["Keep Editing"] // Uses a localized string
 
-    init() {
+    public init() {
         // Check addBlockButton element to ensure block editor is fully loaded
         super.init(element: addBlockButton)
     }
@@ -37,7 +36,7 @@ class BlockEditorScreen: BaseScreen {
      Enters text into title field.
      - Parameter text: the test to enter into the title
      */
-    func enterTextInTitle(text: String) -> BlockEditorScreen {
+    public func enterTextInTitle(text: String) -> BlockEditorScreen {
         titleView.tap()
         titleView.typeText(text)
 
@@ -48,7 +47,7 @@ class BlockEditorScreen: BaseScreen {
     Adds a paragraph block with text.
      - Parameter withText: the text to enter in the paragraph block
      */
-    func addParagraphBlock(withText text: String) -> BlockEditorScreen {
+    public func addParagraphBlock(withText text: String) -> BlockEditorScreen {
         addBlock("Paragraph block")
         paragraphView.typeText(text)
 
@@ -58,7 +57,7 @@ class BlockEditorScreen: BaseScreen {
     /**
      Adds an image block with latest image from device.
      */
-    func addImage() -> BlockEditorScreen {
+    public func addImage() -> BlockEditorScreen {
         addBlock("Image block")
         addImageByOrder(id: 0)
 
@@ -76,7 +75,7 @@ class BlockEditorScreen: BaseScreen {
     }
 
     // returns void since return screen depends on from which screen it loaded
-    func closeEditor() {
+    public func closeEditor() {
         XCTContext.runActivity(named: "Close the block editor") { (activity) in
             XCTContext.runActivity(named: "Close the More menu if needed") { (activity) in
                 if actionSheet.exists {
@@ -105,14 +104,14 @@ class BlockEditorScreen: BaseScreen {
         }
     }
 
-    func publish() -> EditorNoticeComponent {
+    public func publish() -> EditorNoticeComponent {
         publishButton.tap()
         confirmPublish()
 
         return EditorNoticeComponent(withNotice: "Post published", andAction: "View")
     }
 
-    func openPostSettings() -> EditorPostSettings {
+    public func openPostSettings() -> EditorPostSettings {
         moreButton.tap()
         postSettingsButton.tap()
 

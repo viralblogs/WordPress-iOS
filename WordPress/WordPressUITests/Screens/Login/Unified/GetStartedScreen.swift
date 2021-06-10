@@ -1,4 +1,3 @@
-import UITestsFoundation
 import XCTest
 
 private struct ElementStringIDs {
@@ -7,7 +6,7 @@ private struct ElementStringIDs {
     static let continueButton = "Get Started Email Continue Button"
 }
 
-class GetStartedScreen: BaseScreen {
+public class GetStartedScreen: BaseScreen {
     let navBar: XCUIElement
     let emailTextField: XCUIElement
     let continueButton: XCUIElement

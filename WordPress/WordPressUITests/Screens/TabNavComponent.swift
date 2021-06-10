@@ -1,13 +1,12 @@
-import UITestsFoundation
 import XCTest
 
-class TabNavComponent: BaseScreen {
+public class TabNavComponent: BaseScreen {
 
     let mySitesTabButton: XCUIElement
     let readerTabButton: XCUIElement
     let notificationsTabButton: XCUIElement
 
-    init() {
+    public init() {
         let tabBars = XCUIApplication().tabBars["Main Navigation"]
         mySitesTabButton = tabBars.buttons["mySitesTabButton"]
         readerTabButton = tabBars.buttons["readerTabButton"]
@@ -15,7 +14,7 @@ class TabNavComponent: BaseScreen {
         super.init(element: mySitesTabButton)
     }
 
-    func gotoMeScreen() -> MeTabScreen {
+    public func gotoMeScreen() -> MeTabScreen {
         gotoMySiteScreen()
         let meButton = app.navigationBars.buttons["meBarButton"]
         meButton.tap()
@@ -23,12 +22,12 @@ class TabNavComponent: BaseScreen {
     }
 
     @discardableResult
-    func gotoMySiteScreen() -> MySiteScreen {
+    public func gotoMySiteScreen() -> MySiteScreen {
         mySitesTabButton.tap()
         return MySiteScreen()
     }
 
-    func gotoAztecEditorScreen() -> AztecEditorScreen {
+    public func gotoAztecEditorScreen() -> AztecEditorScreen {
         let mySiteScreen = gotoMySiteScreen()
         let actionSheet = mySiteScreen.gotoCreateSheet()
         actionSheet.gotoBlogPost()
@@ -36,7 +35,7 @@ class TabNavComponent: BaseScreen {
         return AztecEditorScreen(mode: .rich)
     }
 
-    func gotoBlockEditorScreen() -> BlockEditorScreen {
+    public func gotoBlockEditorScreen() -> BlockEditorScreen {
         let mySite = gotoMySiteScreen()
         let actionSheet = mySite.gotoCreateSheet()
         actionSheet.gotoBlogPost()
@@ -44,12 +43,12 @@ class TabNavComponent: BaseScreen {
         return BlockEditorScreen()
     }
 
-    func gotoReaderScreen() -> ReaderScreen {
+    public func gotoReaderScreen() -> ReaderScreen {
         readerTabButton.tap()
         return ReaderScreen()
     }
 
-    func gotoNotificationsScreen() -> NotificationsScreen {
+    public func gotoNotificationsScreen() -> NotificationsScreen {
         notificationsTabButton.tap()
         return NotificationsScreen()
     }
@@ -58,7 +57,7 @@ class TabNavComponent: BaseScreen {
         return XCUIApplication().buttons["mySitesTabButton"].exists
     }
 
-    static func isVisible() -> Bool {
+    public static func isVisible() -> Bool {
         return XCUIApplication().buttons["mySitesTabButton"].isHittable
     }
 }

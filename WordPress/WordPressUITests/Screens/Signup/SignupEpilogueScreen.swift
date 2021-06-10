@@ -12,7 +12,7 @@ private struct ElementStringIDs {
     static let continueButton = "Done Button"
 }
 
-class SignupEpilogueScreen: BaseScreen {
+public class SignupEpilogueScreen: BaseScreen {
     let newAccountHeader: XCUIElement
     let displayNameField: XCUIElement
     let usernameField: XCUIElement
@@ -32,7 +32,7 @@ class SignupEpilogueScreen: BaseScreen {
         super.init(element: newAccountHeader)
     }
 
-    func verifyEpilogueContains(username: String, displayName: String) -> SignupEpilogueScreen {
+    public func verifyEpilogueContains(username: String, displayName: String) -> SignupEpilogueScreen {
         let actualUsername = usernameField.value as! String
         let actualDisplayName = displayNameField.value as! String
 
@@ -42,7 +42,7 @@ class SignupEpilogueScreen: BaseScreen {
         return self
     }
 
-    func setPassword(_ password: String) -> SignupEpilogueScreen {
+    public func setPassword(_ password: String) -> SignupEpilogueScreen {
         passwordField.tap()
         passwordField.typeText(password)
         doneButton.tap()
@@ -50,7 +50,7 @@ class SignupEpilogueScreen: BaseScreen {
         return self
     }
 
-    func continueWithSignup() -> MySiteScreen {
+    public func continueWithSignup() -> MySiteScreen {
         continueButton.tap()
 
         return MySiteScreen()

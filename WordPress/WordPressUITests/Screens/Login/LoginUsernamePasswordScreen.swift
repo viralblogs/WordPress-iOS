@@ -18,7 +18,7 @@ private struct ElementStringIDs {
     static let nextButton = "Continue Button"
 }
 
-class LoginUsernamePasswordScreen: BaseScreen {
+public class LoginUsernamePasswordScreen: BaseScreen {
     let navBar: XCUIElement
     let usernameTextField: XCUIElement
     let passwordTextField: XCUIElement
@@ -34,7 +34,7 @@ class LoginUsernamePasswordScreen: BaseScreen {
         super.init(element: passwordTextField)
     }
 
-    func proceedWith(username: String, password: String) -> LoginEpilogueScreen {
+    public func proceedWith(username: String, password: String) -> LoginEpilogueScreen {
         usernameTextField.tap()
         usernameTextField.typeText(username)
         passwordTextField.tap()

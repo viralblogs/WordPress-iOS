@@ -1,4 +1,3 @@
-import UITestsFoundation
 import XCTest
 
 class MediaScreen: BaseScreen {

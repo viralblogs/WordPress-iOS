@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class NotificationsScreen: BaseScreen {
+public class NotificationsScreen: BaseScreen {
 
     let tabBar: TabNavComponent
     let replyButton: XCUIElement
@@ -25,7 +24,7 @@ class NotificationsScreen: BaseScreen {
         return self
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().tables["Notifications Table"].exists
     }
 }

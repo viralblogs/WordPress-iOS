@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class MediaPickerAlbumListScreen: BaseScreen {
+public class MediaPickerAlbumListScreen: BaseScreen {
     let albumList: XCUIElement
 
     init() {
@@ -19,7 +18,7 @@ class MediaPickerAlbumListScreen: BaseScreen {
         return MediaPickerAlbumScreen()
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().tables["AlbumTable"].exists
     }
 }

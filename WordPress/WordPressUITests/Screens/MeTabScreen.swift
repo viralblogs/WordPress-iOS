@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class MeTabScreen: BaseScreen {
+public class MeTabScreen: BaseScreen {
     let logOutButton: XCUIElement
     let logOutAlert: XCUIElement
     let appSettingsButton: XCUIElement
@@ -27,7 +26,7 @@ class MeTabScreen: BaseScreen {
         return logOutButton.exists
     }
 
-    func logout() -> WelcomeScreen {
+    public func logout() -> WelcomeScreen {
         app.cells["logOutFromWPcomButton"].tap()
 
         // Some localizations have very long "log out" text, which causes the UIAlertView

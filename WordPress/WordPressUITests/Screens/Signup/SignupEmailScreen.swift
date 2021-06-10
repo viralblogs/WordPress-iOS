@@ -1,4 +1,3 @@
-import UITestsFoundation
 import XCTest
 
 // TODO: remove when unifiedAuth is permanent.
@@ -8,7 +7,7 @@ private struct ElementStringIDs {
     static let nextButton = "Signup Email Next Button"
 }
 
-class SignupEmailScreen: BaseScreen {
+public class SignupEmailScreen: BaseScreen {
     let emailTextField: XCUIElement
     let nextButton: XCUIElement
 
@@ -20,7 +19,7 @@ class SignupEmailScreen: BaseScreen {
         super.init(element: emailTextField)
     }
 
-    func proceedWith(email: String) -> SignupCheckMagicLinkScreen {
+    public func proceedWith(email: String) -> SignupCheckMagicLinkScreen {
         emailTextField.tap()
         emailTextField.typeText(email)
         nextButton.tap()

@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class CategoriesComponent: BaseScreen {
+public class CategoriesComponent: BaseScreen {
     let categoriesList: XCUIElement
 
     init() {
@@ -24,7 +23,7 @@ class CategoriesComponent: BaseScreen {
         return EditorPostSettings()
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().tables["CategoriesList"].exists
     }
 }

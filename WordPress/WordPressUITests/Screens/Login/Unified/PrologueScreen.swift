@@ -6,7 +6,7 @@ private struct ElementStringIDs {
     static let siteAddressButton = "Prologue Self Hosted Button"
 }
 
-class PrologueScreen: BaseScreen {
+public class PrologueScreen: BaseScreen {
     let continueButton: XCUIElement
     let siteAddressButton: XCUIElement
 
@@ -17,7 +17,7 @@ class PrologueScreen: BaseScreen {
         super.init(element: continueButton)
     }
 
-    func selectContinue() -> GetStartedScreen {
+    public func selectContinue() -> GetStartedScreen {
         continueButton.tap()
 
         return GetStartedScreen()

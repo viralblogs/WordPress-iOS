@@ -8,7 +8,7 @@ private struct ElementStringIDs {
     static let continueButton = "Done"
 }
 
-class LoginEpilogueScreen: BaseScreen {
+public class LoginEpilogueScreen: BaseScreen {
     let continueButton: XCUIElement
     let connectSiteButton: XCUIElement
     let usernameField: XCUIElement
@@ -24,7 +24,7 @@ class LoginEpilogueScreen: BaseScreen {
         super.init(element: continueButton)
     }
 
-    func continueWithSelectedSite() -> MySiteScreen {
+    public func continueWithSelectedSite() -> MySiteScreen {
         continueButton.tap()
         return MySiteScreen()
     }
@@ -33,7 +33,7 @@ class LoginEpilogueScreen: BaseScreen {
         connectSiteButton.tap()
     }
 
-    func verifyEpilogueDisplays(username: String? = nil, siteUrl: String) -> LoginEpilogueScreen {
+    public func verifyEpilogueDisplays(username: String? = nil, siteUrl: String) -> LoginEpilogueScreen {
         if var expectedUsername = username {
             expectedUsername = "@\(expectedUsername)"
             let actualUsername = usernameField.label

@@ -1,4 +1,3 @@
-import UITestsFoundation
 import XCTest
 
 // TODO: remove when unifiedAuth is permanent.
@@ -8,7 +7,7 @@ private struct ElementStringIDs {
     static let siteAddressButton = "Self Hosted Login Button"
 }
 
-class WelcomeScreenLoginComponent: BaseScreen {
+public class WelcomeScreenLoginComponent: BaseScreen {
     let emailLoginButton: XCUIElement
     let siteAddressButton: XCUIElement
 
@@ -19,13 +18,13 @@ class WelcomeScreenLoginComponent: BaseScreen {
         super.init(element: emailLoginButton)
     }
 
-    func selectEmailLogin() -> LoginEmailScreen {
+    public func selectEmailLogin() -> LoginEmailScreen {
         emailLoginButton.tap()
 
         return LoginEmailScreen()
     }
 
-    func goToSiteAddressLogin() -> LoginSiteAddressScreen {
+    public func goToSiteAddressLogin() -> LoginSiteAddressScreen {
         siteAddressButton.tap()
 
         return LoginSiteAddressScreen()

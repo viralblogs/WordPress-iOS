@@ -15,7 +15,7 @@ private struct ElementStringIDs {
     static let siteAddressTextField = "Site address"
 }
 
-class LoginSiteAddressScreen: BaseScreen {
+public class LoginSiteAddressScreen: BaseScreen {
     let navBar: XCUIElement
     let siteAddressTextField: XCUIElement
     let nextButton: XCUIElement
@@ -29,7 +29,7 @@ class LoginSiteAddressScreen: BaseScreen {
         super.init(element: siteAddressTextField)
     }
 
-    func proceedWith(siteUrl: String) -> LoginUsernamePasswordScreen {
+    public func proceedWith(siteUrl: String) -> LoginUsernamePasswordScreen {
         siteAddressTextField.tap()
         siteAddressTextField.typeText(siteUrl)
         nextButton.tap()
