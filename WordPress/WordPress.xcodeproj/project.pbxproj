@@ -520,6 +520,7 @@
 		3FA640642670CED80064401E /* BaseScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA640632670CED80064401E /* BaseScreen.swift */; };
 		3FA640662670CEFF0064401E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FA640652670CEFE0064401E /* XCTest.framework */; };
 		3FA640672670D1290064401E /* UITestsFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FA640572670CCD40064401E /* UITestsFoundation.framework */; };
+		3FA640692670D6A60064401E /* MySiteScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8707162006B774004FB5A4 /* MySiteScreen.swift */; };
 		3FAA18CC25797B85002B1911 /* UnconfiguredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FAA18CB25797B85002B1911 /* UnconfiguredView.swift */; };
 		3FB34ACB25672A90001A74A6 /* HomeWidgetTodayData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FB34ACA25672A90001A74A6 /* HomeWidgetTodayData.swift */; };
 		3FB34ADA25672AA5001A74A6 /* HomeWidgetTodayData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FB34ACA25672A90001A74A6 /* HomeWidgetTodayData.swift */; };
@@ -1885,7 +1886,6 @@
 		BE6DD32E1FD67EDA00E55192 /* MySitesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD32D1FD67EDA00E55192 /* MySitesScreen.swift */; };
 		BE6DD3301FD67F3B00E55192 /* TabNavComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD32F1FD67F3B00E55192 /* TabNavComponent.swift */; };
 		BE6DD3321FD6803700E55192 /* MeTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD3311FD6803700E55192 /* MeTabScreen.swift */; };
-		BE8707172006B774004FB5A4 /* MySiteScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8707162006B774004FB5A4 /* MySiteScreen.swift */; };
 		BE8707192006E48E004FB5A4 /* ReaderScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8707182006E48E004FB5A4 /* ReaderScreen.swift */; };
 		BE87071B2006E65C004FB5A4 /* NotificationsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE87071A2006E65C004FB5A4 /* NotificationsScreen.swift */; };
 		BE87E1A01BD4054F0075D45B /* WP3DTouchShortcutCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE87E19F1BD4054F0075D45B /* WP3DTouchShortcutCreator.swift */; };
@@ -2508,7 +2508,6 @@
 		F9B862C92478170A008B093C /* EncryptedLogTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B862C82478170A008B093C /* EncryptedLogTableViewController.swift */; };
 		F9C47A6B238C7CFD00AAD9ED /* LoginFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED4D8321FF11E3800A11345 /* LoginFlow.swift */; };
 		F9C47A6C238C7D6A00AAD9ED /* MySitesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD32D1FD67EDA00E55192 /* MySitesScreen.swift */; };
-		F9C47A6D238C7D7500AAD9ED /* MySiteScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8707162006B774004FB5A4 /* MySiteScreen.swift */; };
 		F9C47A6E238C7D7D00AAD9ED /* TabNavComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD32F1FD67F3B00E55192 /* TabNavComponent.swift */; };
 		F9C47A6F238C7D8800AAD9ED /* WelcomeScreenLoginComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985F06B42303866200949733 /* WelcomeScreenLoginComponent.swift */; };
 		F9C47A70238C7D8800AAD9ED /* WelcomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE2B4E9A1FD66423007AE3E4 /* WelcomeScreen.swift */; };
@@ -4246,7 +4245,6 @@
 		FAF64B812637DEEC00E8A1DF /* TabNavComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD32F1FD67F3B00E55192 /* TabNavComponent.swift */; };
 		FAF64B822637DEEC00E8A1DF /* FeaturedImageScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD47BDE2474228C00F00660 /* FeaturedImageScreen.swift */; };
 		FAF64B832637DEEC00E8A1DF /* MeTabScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD3311FD6803700E55192 /* MeTabScreen.swift */; };
-		FAF64B842637DEEC00E8A1DF /* MySiteScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8707162006B774004FB5A4 /* MySiteScreen.swift */; };
 		FAF64B852637DEEC00E8A1DF /* LoginPasswordScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6DD3271FD6705200E55192 /* LoginPasswordScreen.swift */; };
 		FAF64B862637DEEC00E8A1DF /* AztecEditorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED4D8341FF1208400A11345 /* AztecEditorScreen.swift */; };
 		FAF64B872637DEEC00E8A1DF /* LoginSiteAddressScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE911BB221D8497007E1D4E /* LoginSiteAddressScreen.swift */; };
@@ -17952,6 +17950,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FA640692670D6A60064401E /* MySiteScreen.swift in Sources */,
 				3FA640642670CED80064401E /* BaseScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -18123,7 +18122,6 @@
 				F9C47A6E238C7D7D00AAD9ED /* TabNavComponent.swift in Sources */,
 				CCBC9EB52512590B008E1D5F /* FeaturedImageScreen.swift in Sources */,
 				F9C47A79238C7DAC00AAD9ED /* MeTabScreen.swift in Sources */,
-				F9C47A6D238C7D7500AAD9ED /* MySiteScreen.swift in Sources */,
 				F9C47A72238C7D8800AAD9ED /* LoginPasswordScreen.swift in Sources */,
 				F9C47A7F238C7DC100AAD9ED /* AztecEditorScreen.swift in Sources */,
 				F9C47A75238C7D8800AAD9ED /* LoginSiteAddressScreen.swift in Sources */,
@@ -20079,7 +20077,6 @@
 				FAF64B812637DEEC00E8A1DF /* TabNavComponent.swift in Sources */,
 				FAF64B822637DEEC00E8A1DF /* FeaturedImageScreen.swift in Sources */,
 				FAF64B832637DEEC00E8A1DF /* MeTabScreen.swift in Sources */,
-				FAF64B842637DEEC00E8A1DF /* MySiteScreen.swift in Sources */,
 				FAF64B852637DEEC00E8A1DF /* LoginPasswordScreen.swift in Sources */,
 				FAF64B862637DEEC00E8A1DF /* AztecEditorScreen.swift in Sources */,
 				FAF64B872637DEEC00E8A1DF /* LoginSiteAddressScreen.swift in Sources */,
@@ -20127,7 +20124,6 @@
 				BE87071B2006E65C004FB5A4 /* NotificationsScreen.swift in Sources */,
 				BE6DD3321FD6803700E55192 /* MeTabScreen.swift in Sources */,
 				BED4D8301FF11DEF00A11345 /* EditorAztecTests.swift in Sources */,
-				BE8707172006B774004FB5A4 /* MySiteScreen.swift in Sources */,
 				CCE55E992242715C002A9634 /* CategoriesComponent.swift in Sources */,
 				7EF9F65722F03C9200F79BBF /* SiteSettingsScreen.swift in Sources */,
 				BE2B4EA21FD6654A007AE3E4 /* Logger.swift in Sources */,
