@@ -99,7 +99,7 @@ extension BaseScreen {
     }
 
     @discardableResult
-    func dismissNotificationAlertIfNeeded(_ action: FancyAlertComponent.Action = .cancel) -> Self {
+    public func dismissNotificationAlertIfNeeded(_ action: FancyAlertComponent.Action = .cancel) -> Self {
         if FancyAlertComponent.isLoaded() {
             switch action {
             case .accept:
@@ -112,11 +112,11 @@ extension BaseScreen {
     }
 }
 
-class WireMock {
+public class WireMock {
     private static let hostInfoPlistKey = "WIREMOCK_HOST"
     private static let portInfoPlistKey = "WIREMOCK_PORT"
 
-    static func URL() -> Foundation.URL {
+    public static func URL() -> Foundation.URL {
         let host = infoPlistEntry(key: hostInfoPlistKey)
         let port = infoPlistEntry(key: portInfoPlistKey)
         return Foundation.URL(string: "http://\(host):\(port)/")!
@@ -154,7 +154,7 @@ var isIPhone: Bool {
 
 // TODO: This should maybe go in an `XCUIApplication` extension? Also, should it be computed rather
 // than stored as a reference? 🤔
-let navBackButton = XCUIApplication().navigationBars.element(boundBy: 0).buttons.element(boundBy: 0)
+public let navBackButton = XCUIApplication().navigationBars.element(boundBy: 0).buttons.element(boundBy: 0)
 
 // TODO: This should go XCUITestHelpers if not there already
 public extension XCUIElement {
@@ -254,18 +254,18 @@ class Logger {
 
 
 // 2. The Date to String extension
-extension Date {
+public extension Date {
     func toString() -> String {
         return Logger.dateFormatter.string(from: self as Date)
     }
 }
 // MARK: - FancyAlertComponent
 
-class FancyAlertComponent: BaseScreen {
+public class FancyAlertComponent: BaseScreen {
     let defaultAlertButton: XCUIElement
     let cancelAlertButton: XCUIElement
 
-    enum Action {
+    public enum Action {
         case accept
         case cancel
     }
