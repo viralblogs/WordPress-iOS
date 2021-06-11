@@ -1,6 +1,6 @@
 import XCTest
 
-class LoginFlow {
+public class LoginFlow {
 
     @discardableResult
     static func login(email: String, password: String) -> MySiteScreen {
@@ -36,7 +36,7 @@ class LoginFlow {
 
     // Login with WP site via Site Address.
     @discardableResult
-    static func login(siteUrl: String, email: String, password: String) -> MySiteScreen {
+    public static func login(siteUrl: String, email: String, password: String) -> MySiteScreen {
         logoutIfNeeded()
 
         return PrologueScreen().selectSiteAddress()
@@ -56,14 +56,14 @@ class LoginFlow {
     }
 
     // Login with WP site via Site Address.
-    static func loginIfNeeded(siteUrl: String, email: String, password: String) -> TabNavComponent {
+    public static func loginIfNeeded(siteUrl: String, email: String, password: String) -> TabNavComponent {
         guard TabNavComponent.isLoaded() else {
             return login(siteUrl: siteUrl, email: email, password: password).tabBar
         }
         return TabNavComponent()
     }
 
-    static func logoutIfNeeded() {
+    public static func logoutIfNeeded() {
         XCTContext.runActivity(named: "Log out of app if currently logged in") { (activity) in
             if TabNavComponent.isLoaded() {
                 Logger.log(message: "Logging out...", event: .i)

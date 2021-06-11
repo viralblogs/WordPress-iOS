@@ -6,7 +6,7 @@ private struct ElementStringIDs {
     static let mailButton = "Open Mail Button"
 }
 
-class LoginCheckMagicLinkScreen: BaseScreen {
+public class LoginCheckMagicLinkScreen: BaseScreen {
     let passwordOption: XCUIElement
     let mailButton: XCUIElement
     let mailAlert: XCUIElement
@@ -26,7 +26,7 @@ class LoginCheckMagicLinkScreen: BaseScreen {
         return LoginPasswordScreen()
     }
 
-    func openMagicLoginLink() -> LoginEpilogueScreen {
+    public func openMagicLoginLink() -> LoginEpilogueScreen {
         openMagicLink()
 
         return LoginEpilogueScreen()

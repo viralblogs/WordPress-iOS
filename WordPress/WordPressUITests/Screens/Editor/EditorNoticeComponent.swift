@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class EditorNoticeComponent: BaseScreen {
+public class EditorNoticeComponent: BaseScreen {
     let noticeAction: XCUIElement
 
     private let expectedNoticeTitle: String
@@ -16,7 +15,7 @@ class EditorNoticeComponent: BaseScreen {
         super.init(element: notice)
     }
 
-    func viewPublishedPost(withTitle postTitle: String) -> EditorPublishEpilogueScreen {
+    public func viewPublishedPost(withTitle postTitle: String) -> EditorPublishEpilogueScreen {
         // The publish notice has a joined accessibility label equal to: title + message
         // (the postTitle). It does not seem possible to target the specific postTitle label
         // only because of this.

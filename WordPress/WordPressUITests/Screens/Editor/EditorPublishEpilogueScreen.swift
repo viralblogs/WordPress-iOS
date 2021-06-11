@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class EditorPublishEpilogueScreen: BaseScreen {
+public class EditorPublishEpilogueScreen: BaseScreen {
     let doneButton: XCUIElement
     let viewButton: XCUIElement
 
@@ -15,11 +14,11 @@ class EditorPublishEpilogueScreen: BaseScreen {
     }
 
     // returns void since return screen depends on what screen you started on
-    func done() {
+    public func done() {
         doneButton.tap()
     }
 
-    func verifyEpilogueDisplays(postTitle expectedPostTitle: String, siteAddress expectedSiteAddress: String) -> EditorPublishEpilogueScreen {
+    public func verifyEpilogueDisplays(postTitle expectedPostTitle: String, siteAddress expectedSiteAddress: String) -> EditorPublishEpilogueScreen {
         let actualPostTitle = XCUIApplication().staticTexts["postTitle"].label
         let actualSiteAddress = XCUIApplication().staticTexts["siteUrl"].label
 

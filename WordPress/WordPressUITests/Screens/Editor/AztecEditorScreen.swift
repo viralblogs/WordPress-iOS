@@ -1,7 +1,7 @@
 import UITestsFoundation
 import XCTest
 
-class AztecEditorScreen: BaseScreen {
+public class AztecEditorScreen: BaseScreen {
     enum Mode {
         case rich
         case html
@@ -232,7 +232,7 @@ class AztecEditorScreen: BaseScreen {
     }
 
     // returns void since return screen depends on from which screen it loaded
-    func closeEditor() {
+    public func closeEditor() {
         XCTContext.runActivity(named: "Close the Aztec editor") { (activity) in
             XCTContext.runActivity(named: "Close the More menu if needed") { (activity) in
                 if actionSheet.exists {

@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class MediaPickerAlbumScreen: BaseScreen {
+public class MediaPickerAlbumScreen: BaseScreen {
     let mediaCollection: XCUIElement
     let insertButton: XCUIElement
 
@@ -23,7 +22,7 @@ class MediaPickerAlbumScreen: BaseScreen {
         insertButton.tap()
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         // Check if the media picker is loaded as a component within the editor
         // and only return true if the media picker is a full screen
         if XCUIApplication().navigationBars["Azctec Editor Navigation Bar"].exists {

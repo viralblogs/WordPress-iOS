@@ -6,7 +6,7 @@ private struct ElementStringIDs {
     static let discoverButton = "Discover"
 }
 
-class ReaderScreen: BaseScreen {
+public class ReaderScreen: BaseScreen {
     let tabBar: TabNavComponent
     let discoverButton: XCUIElement
 
@@ -18,7 +18,7 @@ class ReaderScreen: BaseScreen {
         super.init(element: readerTable)
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().tables[ElementStringIDs.readerTable].exists
     }
 

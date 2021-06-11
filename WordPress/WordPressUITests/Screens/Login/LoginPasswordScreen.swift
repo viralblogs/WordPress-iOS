@@ -9,7 +9,7 @@ private struct ElementStringIDs {
     static let errorLabel = "pswdErrorLabel"
 }
 
-class LoginPasswordScreen: BaseScreen {
+public class LoginPasswordScreen: BaseScreen {
     let passwordTextField: XCUIElement
     let loginButton: XCUIElement
 
@@ -19,13 +19,13 @@ class LoginPasswordScreen: BaseScreen {
         super.init(element: passwordTextField)
     }
 
-    func proceedWith(password: String) -> LoginEpilogueScreen {
+    public func proceedWith(password: String) -> LoginEpilogueScreen {
         _ = tryProceed(password: password)
 
         return LoginEpilogueScreen()
     }
 
-    func tryProceed(password: String) -> LoginPasswordScreen {
+    public func tryProceed(password: String) -> LoginPasswordScreen {
         passwordTextField.tap()
         passwordTextField.typeText(password)
         loginButton.tap()
@@ -35,7 +35,7 @@ class LoginPasswordScreen: BaseScreen {
         return self
     }
 
-    func verifyLoginError() -> LoginPasswordScreen {
+    public func verifyLoginError() -> LoginPasswordScreen {
         let errorLabel = app.staticTexts[ElementStringIDs.errorLabel]
         _ = errorLabel.waitForExistence(timeout: 2)
 

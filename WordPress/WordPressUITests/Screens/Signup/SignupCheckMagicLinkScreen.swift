@@ -4,7 +4,7 @@ private struct ElementStringIDs {
     static let mailButton = "Open Mail Button"
 }
 
-class SignupCheckMagicLinkScreen: BaseScreen {
+public class SignupCheckMagicLinkScreen: BaseScreen {
     let mailButton: XCUIElement
 
     init() {
@@ -14,7 +14,7 @@ class SignupCheckMagicLinkScreen: BaseScreen {
         super.init(element: mailButton)
     }
 
-    func openMagicSignupLink() -> SignupEpilogueScreen {
+    public func openMagicSignupLink() -> SignupEpilogueScreen {
         openMagicLink()
 
         return SignupEpilogueScreen()

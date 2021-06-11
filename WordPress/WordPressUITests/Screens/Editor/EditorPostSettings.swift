@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class EditorPostSettings: BaseScreen {
+public class EditorPostSettings: BaseScreen {
     let settingsTable: XCUIElement
     let categoriesSection: XCUIElement
     let tagsSection: XCUIElement
@@ -20,13 +19,13 @@ class EditorPostSettings: BaseScreen {
         super.init(element: settingsTable)
     }
 
-    func selectCategory(name: String) -> EditorPostSettings {
+    public func selectCategory(name: String) -> EditorPostSettings {
         return openCategories()
             .selectCategory(name: name)
             .goBackToSettings()
     }
 
-    func addTag(name: String) -> EditorPostSettings {
+    public func addTag(name: String) -> EditorPostSettings {
         return openTags()
             .addTag(name: name)
             .goBackToSettings()
@@ -44,7 +43,7 @@ class EditorPostSettings: BaseScreen {
         return TagsComponent()
     }
 
-    func removeFeatureImage() -> EditorPostSettings {
+    public func removeFeatureImage() -> EditorPostSettings {
         changeFeaturedImageButton.tap()
         FeaturedImageScreen()
             .tapRemoveFeaturedImageButton()
@@ -52,7 +51,7 @@ class EditorPostSettings: BaseScreen {
         return EditorPostSettings()
     }
 
-    func setFeaturedImage() -> EditorPostSettings {
+    public func setFeaturedImage() -> EditorPostSettings {
         featuredImageButton.tap()
         MediaPickerAlbumListScreen()
             .selectAlbum(atIndex: 0) // Select media library
@@ -61,7 +60,7 @@ class EditorPostSettings: BaseScreen {
         return EditorPostSettings()
     }
 
-    func verifyPostSettings(withCategory category: String? = nil, withTag tag: String? = nil, hasImage: Bool) -> EditorPostSettings {
+    public func verifyPostSettings(withCategory category: String? = nil, withTag tag: String? = nil, hasImage: Bool) -> EditorPostSettings {
         if let postCategory = category {
             XCTAssertTrue(categoriesSection.staticTexts[postCategory].exists, "Category \(postCategory) not set")
         }
@@ -79,11 +78,11 @@ class EditorPostSettings: BaseScreen {
     }
 
     // returns void since return screen depends on which editor you're in
-    func closePostSettings() {
+    public func closePostSettings() {
         navBackButton.tap()
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().tables["SettingsTable"].exists
     }
 }

@@ -6,7 +6,7 @@ private struct ElementStringIDs {
     static let emailSignupButton = "Sign up with Email Button"
 }
 
-class WelcomeScreenSignupComponent: BaseScreen {
+public class WelcomeScreenSignupComponent: BaseScreen {
     let emailSignupButton: XCUIElement
 
     init() {
@@ -15,7 +15,7 @@ class WelcomeScreenSignupComponent: BaseScreen {
         super.init(element: emailSignupButton)
     }
 
-    func selectEmailSignup() -> SignupEmailScreen {
+    public func selectEmailSignup() -> SignupEmailScreen {
         emailSignupButton.tap()
 
         return SignupEmailScreen()

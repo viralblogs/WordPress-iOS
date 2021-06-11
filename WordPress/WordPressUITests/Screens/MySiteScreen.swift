@@ -17,8 +17,8 @@ private struct ElementStringIDs {
     static let addNewSiteButton = "Add new site Button"
 }
 
-class MySiteScreen: BaseScreen {
-    let tabBar: TabNavComponent
+public class MySiteScreen: BaseScreen {
+    public let tabBar: TabNavComponent
     let navBar: XCUIElement
     let removeSiteButton: XCUIElement
     let removeSiteSheet: XCUIElement
@@ -40,7 +40,7 @@ class MySiteScreen: BaseScreen {
         return blogTable.exists && blogTable.isHittable
     }
 
-    init() {
+    public init() {
         let app = XCUIApplication()
         let blogTable = app.tables[ElementStringIDs.blogTable]
         tabBar = TabNavComponent()
@@ -67,7 +67,7 @@ class MySiteScreen: BaseScreen {
         return MySitesScreen()
     }
 
-    func removeSelfHostedSite() {
+    public func removeSelfHostedSite() {
         removeSiteButton.tap()
         if isIpad {
             removeSiteAlert.tap()
@@ -112,7 +112,7 @@ class MySiteScreen: BaseScreen {
         return StatsScreen()
     }
 
-    func gotoSettingsScreen() -> SiteSettingsScreen {
+    public func gotoSettingsScreen() -> SiteSettingsScreen {
         siteSettingsButton.tap()
         return SiteSettingsScreen()
     }
@@ -122,7 +122,7 @@ class MySiteScreen: BaseScreen {
         return ActionSheetComponent()
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().navigationBars[ElementStringIDs.navBarTitle].exists
     }
 }

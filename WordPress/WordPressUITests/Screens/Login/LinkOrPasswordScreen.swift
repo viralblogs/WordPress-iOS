@@ -8,7 +8,7 @@ private struct ElementStringIDs {
     static let linkButton = "Send Link Button"
 }
 
-class LinkOrPasswordScreen: BaseScreen {
+public class LinkOrPasswordScreen: BaseScreen {
     let passwordOption: XCUIElement
     let linkButton: XCUIElement
 
@@ -19,13 +19,13 @@ class LinkOrPasswordScreen: BaseScreen {
         super.init(element: passwordOption)
     }
 
-    func proceedWithPassword() -> LoginPasswordScreen {
+    public func proceedWithPassword() -> LoginPasswordScreen {
         passwordOption.tap()
 
         return LoginPasswordScreen()
     }
 
-    func proceedWithLink() -> LoginCheckMagicLinkScreen {
+    public func proceedWithLink() -> LoginCheckMagicLinkScreen {
         linkButton.tap()
 
         return LoginCheckMagicLinkScreen()

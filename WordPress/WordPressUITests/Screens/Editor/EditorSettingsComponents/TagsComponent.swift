@@ -1,7 +1,6 @@
-import UITestsFoundation
 import XCTest
 
-class TagsComponent: BaseScreen {
+public class TagsComponent: BaseScreen {
     let tagsField: XCUIElement
 
     init() {
@@ -23,7 +22,7 @@ class TagsComponent: BaseScreen {
         return EditorPostSettings()
     }
 
-    static func isLoaded() -> Bool {
+    public static func isLoaded() -> Bool {
         return XCUIApplication().textViews["add-tags"].exists
     }
 }
