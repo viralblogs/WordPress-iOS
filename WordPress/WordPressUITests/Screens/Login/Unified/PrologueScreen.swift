@@ -1,4 +1,3 @@
-import UITestsFoundation
 import XCTest
 
 private struct ElementStringIDs {
@@ -10,7 +9,7 @@ public class PrologueScreen: BaseScreen {
     let continueButton: XCUIElement
     let siteAddressButton: XCUIElement
 
-    init() {
+    public init() {
         continueButton = XCUIApplication().buttons[ElementStringIDs.continueButton]
         siteAddressButton = XCUIApplication().buttons[ElementStringIDs.siteAddressButton]
 
