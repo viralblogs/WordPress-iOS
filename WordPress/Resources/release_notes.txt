@@ -1,3 +1,5 @@
+This is WordPress :)
+
 With 17.6, you can add the Audio Block to any WordPress.com site, whatever plan you’re on – including the Free Plan. The Audio Block makes it easy to add podcasts, music, and sound files to your posts and pages.
 
 In the Reader, you’ll now see a count and summary of Likes added to every post. If that’s not enough Likes in your life, tap the summary and you’ll be able to see the full list.
