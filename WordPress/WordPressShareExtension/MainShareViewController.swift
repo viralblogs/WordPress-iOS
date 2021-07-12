@@ -48,9 +48,10 @@ class MainShareViewController: UIViewController {
             origination = .share
         }
 
-        guard let controller = storyboard.instantiateViewController(withIdentifier: origination.viewControllerIdentifier) as? ShareExtensionAbstractViewController else {
-            fatalError("Unable to create share extension editor screen.")
-        }
+        let controller = GutenbergViewController()
+//        guard let controller = storyboard.instantiateViewController(withIdentifier: origination.viewControllerIdentifier) as? ShareExtensionAbstractViewController else {
+//            fatalError("Unable to create share extension editor screen.")
+//        }
         controller.originatingExtension = origination
         return controller
     }()

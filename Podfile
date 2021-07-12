@@ -150,6 +150,72 @@ def gutenberg_dependencies(options)
         pod pod_name, :podspec => "#{podspec_prefix}/third-party-podspecs/#{pod_name}.podspec.json"
     end
 end
+    
+    
+def gutenberg_lite(options)
+    options[:git] = 'https://github.com/wordpress-mobile/gutenberg-mobile.git'
+    options[:submodules] = true
+    local_gutenberg = ENV['LOCAL_GUTENBERG']
+    if local_gutenberg
+      options = { :path => local_gutenberg.include?('/') ? local_gutenberg : '../gutenberg-mobile' }
+    end
+    pod 'Gutenberg', options
+    pod 'RNTAztecView', options
+
+    gutenberg_dependencies_lite options
+end
+
+def gutenberg_dependencies_lite(options)
+    dependencies = [
+        'FBReactNativeSpec',
+        'FBLazyVector',
+        'React',
+        'ReactCommon',
+        'RCTRequired',
+        'RCTTypeSafety',
+        'React-Core',
+        'React-CoreModules',
+        'React-RCTActionSheet',
+        'React-RCTAnimation',
+        'React-RCTBlob',
+        'React-RCTImage',
+        'React-RCTLinking',
+        'React-RCTNetwork',
+        'React-RCTSettings',
+        'React-RCTText',
+        'React-RCTVibration',
+        'React-cxxreact',
+        'React-jsinspector',
+        'React-jsi',
+        'React-jsiexecutor',
+        'Yoga',
+        'Folly',
+        'glog',
+        'react-native-keyboard-aware-scroll-view',
+        'react-native-safe-area',
+        'react-native-safe-area-context',
+        'RNSVG',
+        'ReactNativeDarkMode',
+        'react-native-slider',
+        'react-native-linear-gradient',
+        'react-native-get-random-values',
+        'react-native-blur',
+        'RNScreens',
+        'RNReanimated',
+        'RNGestureHandler',
+        'RNCMaskedView'
+    ]
+    if options[:path]
+        podspec_prefix = options[:path]
+    else
+        tag_or_commit = options[:tag] || options[:commit]
+        podspec_prefix = "https://raw.githubusercontent.com/wordpress-mobile/gutenberg-mobile/#{tag_or_commit}"
+    end
+
+    for pod_name in dependencies do
+        pod pod_name, :podspec => "#{podspec_prefix}/third-party-podspecs/#{pod_name}.podspec.json"
+    end
+end
 
 abstract_target 'Apps' do
     project 'WordPress/WordPress.xcodeproj'
@@ -246,6 +312,11 @@ target 'WordPressShareExtension' do
     project 'WordPress/WordPress.xcodeproj'
 
     shared_with_extension_pods
+    
+    ## Gutenberg (React Native)
+    ## =====================
+    ##
+    gutenberg_lite :tag => 'v1.52.1'
 
     aztec
     shared_with_all_pods
@@ -477,6 +548,10 @@ post_install do |installer|
       target.build_configurations.each do |configuration|
         pod_ios_deployment_target = Gem::Version.new(configuration.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
         configuration.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET' if pod_ios_deployment_target <= app_ios_deployment_target
+        # if target.name == 'Pods-WordPressShareExtension'
+        #   puts "#{target}"
+          configuration.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
+        # end
       end
     end
 end
