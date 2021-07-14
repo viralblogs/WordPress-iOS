@@ -50,17 +50,16 @@ class LoginTests: XCTestCase {
      This test opens safari to trigger the mocked magic link redirect
      */
     func testEmailMagicLinkLogin() {
-        let welcomeScreen = WelcomeScreen().selectLogin()
-            .selectEmailLogin()
+        _ = PrologueScreen().selectContinue()
             .proceedWith(email: WPUITestCredentials.testWPcomUserEmail)
-            .proceedWithLink()
+            .proceedWithLink() // Unified login's PasswordScreen doesn't have this function.
             .openMagicLoginLink()
             .continueWithSelectedSite()
             .dismissNotificationAlertIfNeeded()
             .tabBar.gotoMeScreen()
             .logout()
 
-        XCTAssert(welcomeScreen.isLoaded())
+        XCTAssert(PrologueScreen.isLoaded())
     }
 
     // Unified WordPress.com login/out
