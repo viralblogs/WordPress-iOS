@@ -4,7 +4,7 @@ import XCTest
 private struct ElementStringIDs {
     static let navBar = "WordPress.PasswordView"
     static let passwordTextField = "Password"
-    static let linkButton = "Send Link Button"
+    static let linkButton = "Get a login link by email"
     static let continueButton = "Continue Button"
     static let errorLabel = "Password Error"
 }
@@ -19,7 +19,7 @@ class PasswordScreen: BaseScreen {
         let app = XCUIApplication()
         navBar = app.navigationBars[ElementStringIDs.navBar]
         passwordTextField = app.secureTextFields[ElementStringIDs.passwordTextField]
-        linkButton = XCUIApplication().buttons[ElementStringIDs.linkButton]
+        linkButton = XCUIApplication().staticTexts[ElementStringIDs.linkButton]
         continueButton = app.buttons[ElementStringIDs.continueButton]
 
         super.init(element: passwordTextField)
