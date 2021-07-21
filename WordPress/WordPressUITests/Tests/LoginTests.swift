@@ -57,7 +57,7 @@ class LoginTests: XCTestCase {
             .continueWithSelectedSite()
             .dismissNotificationAlertIfNeeded()
             .tabBar.gotoMeScreen()
-            .logout()
+            .logoutToPrologue()
 
         XCTAssert(PrologueScreen.isLoaded())
     }
