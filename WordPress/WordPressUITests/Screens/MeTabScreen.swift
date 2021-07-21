@@ -27,6 +27,8 @@ class MeTabScreen: BaseScreen {
         return logOutButton.exists
     }
 
+    // This WelcomeScreen no longer exists since Unified Login.
+    // TODO: Remove this function. Make sure it's not being used anywhere. It should be fully replaced by logoutToPrologue, below.
     func logout() -> WelcomeScreen {
         app.cells["logOutFromWPcomButton"].tap()
 
