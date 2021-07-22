@@ -52,7 +52,7 @@ class LoginTests: XCTestCase {
     func testEmailMagicLinkLogin() {
         _ = PrologueScreen().selectContinue()
             .proceedWith(email: WPUITestCredentials.testWPcomUserEmail)
-            .proceedWithLink() // Unified login's PasswordScreen doesn't have this function.
+            .proceedWithLink()
             .openMagicLoginLink()
             .continueWithSelectedSite()
             .dismissNotificationAlertIfNeeded()
