@@ -41,7 +41,7 @@ class LoginTests: XCTestCase {
             .continueWithSelectedSite()
             .dismissNotificationAlertIfNeeded()
             .tabBar.gotoMeScreen()
-            .logout()
+        //  .logout()  This function no longer exists. Test will be removed.
 
         XCTAssert(welcomeScreen.isLoaded())
     }

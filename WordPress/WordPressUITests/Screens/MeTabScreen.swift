@@ -27,22 +27,6 @@ class MeTabScreen: BaseScreen {
         return logOutButton.exists
     }
 
-    // This WelcomeScreen no longer exists since Unified Login.
-    // TODO: Remove this function. Make sure it's not being used anywhere. It should be fully replaced by logoutToPrologue, below.
-    func logout() -> WelcomeScreen {
-        app.cells["logOutFromWPcomButton"].tap()
-
-        // Some localizations have very long "log out" text, which causes the UIAlertView
-        // to stack. We need to detect these cases in order to reliably tap the correct button
-        if logOutAlert.buttons.allElementsShareCommonXAxis {
-            logOutAlert.buttons.element(boundBy: 0).tap()
-        }
-        else {
-            logOutAlert.buttons.element(boundBy: 1).tap()
-        }
-
-        return WelcomeScreen()
-    }
 
     func logoutToPrologue() -> PrologueScreen {
         app.cells["logOutFromWPcomButton"].tap()
