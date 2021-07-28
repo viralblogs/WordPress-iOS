@@ -15,15 +15,27 @@ class SignupTests: XCTestCase {
     }
 
     func testEmailSignup() {
-        let mySiteScreen = WelcomeScreen().selectSignup()
-            .selectEmailSignup()
-            .proceedWith(email: WPUITestCredentials.signupEmail)
+   //     let mySiteScreen = WelcomeScreen().selectSignup()
+     //       .selectEmailSignup()
+       //     .proceedWith(email: WPUITestCredentials.signupEmail)
+         //   .openMagicSignupLink()
+  //          .verifyEpilogueContains(username: WPUITestCredentials.signupUsername, displayName: WPUITestCredentials.signupDisplayName)
+      //      .setPassword(WPUITestCredentials.signupPassword)
+        //    .continueWithSignup()
+          //  .dismissNotificationAlertIfNeeded()
+
+        _ = PrologueScreen().selectContinue()
+            .proceedWithSignup(email: WPUITestCredentials.signupEmail)
             .openMagicSignupLink()
+
+            // this won't work, there's no way to sign up with a password.
+          //  .proceedSignupWith(password: WPUITestCredentials.signupPassword)
             .verifyEpilogueContains(username: WPUITestCredentials.signupUsername, displayName: WPUITestCredentials.signupDisplayName)
-            .setPassword(WPUITestCredentials.signupPassword)
             .continueWithSignup()
             .dismissNotificationAlertIfNeeded()
+            .tabBar.gotoMeScreen()
+            .logoutToPrologue()
 
-        XCTAssert(mySiteScreen.isLoaded())
+        XCTAssert(PrologueScreen.isLoaded())
     }
 }
