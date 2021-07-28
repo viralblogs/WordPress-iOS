@@ -29,6 +29,14 @@ class GetStartedScreen: BaseScreen {
         return PasswordScreen()
     }
 
+    func proceedWithSignup(email: String) -> SignupCheckMagicLinkScreen {
+        emailTextField.tap()
+        emailTextField.typeText(email)
+        continueButton.tap()
+
+        return SignupCheckMagicLinkScreen() //this does not get returned currently
+    }
+
     static func isLoaded() -> Bool {
         return XCUIApplication().buttons[ElementStringIDs.continueButton].exists
     }
