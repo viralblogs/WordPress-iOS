@@ -709,9 +709,7 @@ platform :ios do
       workspace: WORKSPACE_PATH,
       scheme: 'WordPress',
       derived_data_path: DERIVED_DATA_PATH,
-      build_for_testing: true,
-      device: options[:device],
-      deployment_target_version: options[:ios_version]
+      build_for_testing: true
     )
   end
   #####################################################################################
