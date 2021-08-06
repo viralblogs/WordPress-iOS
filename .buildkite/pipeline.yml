@@ -20,6 +20,8 @@ steps:
     command: ".buildkite/commands/build-for-testing.sh"
     env: *common_env
     plugins: *common_plugins
+    agents:
+      queue: "mac-testing"
 
   #################
   # Run Unit Tests
@@ -35,6 +37,8 @@ steps:
     depends_on: "build"
     env: *common_env
     plugins: *common_plugins
+    agents:
+      queue: "mac-testing"
 
   #################
   # Lint Translations
@@ -72,6 +76,8 @@ steps:
     depends_on: "build"
     env: *common_env
     plugins: *common_plugins
+    agents:
+      queue: "mac-testing"
 
   - label: "🧪 UI Tests (iPad)"
     command: |
@@ -95,3 +101,5 @@ steps:
     depends_on: "build"
     env: *common_env
     plugins: *common_plugins
+    agents:
+      queue: "mac-testing"
